@@ -16,7 +16,7 @@ type MachinaThisEventFn<F extends Fsm, EventName extends SpecialEventNames | key
 }
 
 export type EventFn<F extends Fsm = Fsm, EventName extends SpecialEventNames | keyof F["events"] = SpecialEventNames | keyof F["events"], StateName extends keyof F["states"] = keyof F["states"]> =
-    | keyof F["states"]
+    | (keyof { [key in keyof F["states"] as [] extends GetStateArguments<F["states"][key]> ? key : never]: any })
     | ((
         this: MachinaThisEventFn<F, EventName>,
         ...args: EventName extends SpecialEventNames
