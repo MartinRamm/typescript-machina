@@ -4,7 +4,7 @@ import type {EventFn} from "./EventFn";
 import type {MachinaThis, MachinaThisInitializeFn} from "./MachinaThis";
 import type {SpecialEventNames} from "./SpecialEventNames";
 
-type GenericUserFunction<F extends Fsm = any, Args extends any[] = any, ReturnType extends any = any> = (this: MachinaThis<F>, ...args: Args) => ReturnType;
+type GenericUserFunction<F extends Fsm = any, Args extends any[] = any, ReturnType extends any = any> = (this: MachinaThis<F> | MachinaThisInitializeFn<F>, ...args: Args) => ReturnType;
 
 export type Fsm<
     States extends {[key: string]: State} = any,

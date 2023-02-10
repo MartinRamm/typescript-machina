@@ -26,7 +26,7 @@ export type MachinaThisInitializeFn<F extends Fsm> = {
     readonly pendingDelegations: object,
 
     transition<StateName extends keyof F["states"]>(stateName: StateName, ...args: GetStateArguments<F["states"][StateName]>): void;
-}
+} & F["userDefinedFunctions"];
 
 export type CurrentActionArgs<F extends Fsm, EventName extends keyof F["events"] = keyof F["events"]> =
     [
@@ -42,5 +42,4 @@ export type MachinaThis<F extends Fsm> = MachinaThisInitializeFn<F> & {
     readonly currentAction: '' | `${keyof F["states"] extends string | number ? keyof F["states"] : never}.${keyof F["events"] extends string | number ? keyof F["events"] : never}`,
     readonly currentActionArgs: undefined | CurrentActionArgs<F>,
     readonly inExitHandler: boolean,
-
-} & F["userDefinedFunctions"]
+};
