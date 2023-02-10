@@ -8,7 +8,6 @@ type MachinaThisEventFn<F extends Fsm, EventName extends SpecialEventNames | key
         readonly currentActionArgs: EventName extends SpecialEventNames ? CurrentActionArgs<F> : EventName extends keyof F["events"] ? CurrentActionArgs<F, EventName> : never,
         readonly inExitHandler: EventName extends '_onExit' ? true : false,
 
-        transition<StateName extends keyof F["states"]>(stateName: StateName, ...args: GetStateArguments<F["states"][StateName]>): void;
         deferUntilTransition(stateName: keyof F["states"]): void;
         //as tested in v4.0.2, deferAndTransition only forwards the second arg to _onEnter (unlike "transition", which
         //forwards all args except the first one). So this fn can only accept states that require no or only one argument.

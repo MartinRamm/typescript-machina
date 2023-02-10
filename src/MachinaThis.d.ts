@@ -39,5 +39,7 @@ export type MachinaThis<F extends Fsm> = MachinaThisInitializeFn<F> & {
     readonly priorState: '' | keyof F["states"],
     readonly currentAction: '' | `${keyof F["states"] extends string | number ? keyof F["states"] : never}.${keyof F["events"] extends string | number ? keyof F["events"] : never}`,
     readonly currentActionArgs: undefined | CurrentActionArgs<F>,
-    readonly inExitHandler: boolean
-}
+    readonly inExitHandler: boolean,
+
+    transition<StateName extends keyof F["states"]>(stateName: StateName, ...args: GetStateArguments<F["states"][StateName]>): void;
+} & F["userDefinedFunctions"]
