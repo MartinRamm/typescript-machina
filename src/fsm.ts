@@ -14,14 +14,14 @@ export type Fsm<
     readonly states: States,
     readonly events: Events,
     readonly defaultHandlers: DefaultHandlers,
-    readonly initializeFn: undefined | ((this: MachinaThisInitializeFn<Fsm<States, Events, DefaultHandlers, ConstructorArguments, IsInitializeFnAdded>>, ...args: ConstructorArguments) => any),
+    readonly initializeFn: IsInitializeFnAdded extends false ?  undefined : ((this: MachinaThisInitializeFn<Fsm<States, Events, DefaultHandlers, ConstructorArguments, IsInitializeFnAdded>>, ...args: ConstructorArguments) => any),
     addDefaultHandler:
         <EventName extends Exclude<SpecialEventNames | keyof Events, keyof DefaultHandlers>>
         (eventName: EventName, fn: EventFn<Fsm<States, Events, DefaultHandlers, ConstructorArguments, IsInitializeFnAdded>, EventName>)
             => Fsm<States, Events, DefaultHandlers & Record<EventName, typeof fn>, ConstructorArguments, IsInitializeFnAdded>,
     addInitializeFn: IsInitializeFnAdded extends true ? never :
         <NewConstructorArguments extends any[]>
-        (fn: (this: MachinaThisInitializeFn<Fsm<States, Events, DefaultHandlers, ConstructorArguments, IsInitializeFnAdded>>, ...args: NewConstructorArguments) => any)
+        (fn: (this: MachinaThisInitializeFn<Fsm<States, Events, DefaultHandlers, NewConstructorArguments, true>>, ...args: NewConstructorArguments) => any)
             => Fsm<States, Events, DefaultHandlers, NewConstructorArguments, true>,
 };
 
