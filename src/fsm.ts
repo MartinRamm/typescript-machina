@@ -16,11 +16,13 @@ export type Fsm<
     UserDefinedFunctions extends {[key: string]: GenericUserFunction} = any,
 > = {
     readonly states: States,
+    readonly initialState: keyof States,
     readonly events: Events,
     readonly emittableEvents: EmittableEvents,
     readonly defaultHandlers: DefaultHandlers,
     readonly userDefinedFunctions: UserDefinedFunctions,
     readonly initializeFn: IsInitializeFnAdded extends false ?  undefined : ((this: MachinaThisInitializeFn<Fsm<States, Events, DefaultHandlers, EmittableEvents, ConstructorArguments, IsInitializeFnAdded, UserDefinedFunctions>>, ...args: ConstructorArguments) => any),
+    readonly namespace?: string,
     readonly addDefaultHandler:
         <EventName extends Exclude<SpecialEventNames | keyof Events, keyof DefaultHandlers>>
         (eventName: EventName, fn: EventFn<Fsm<States, Events, DefaultHandlers, EmittableEvents, ConstructorArguments, IsInitializeFnAdded, UserDefinedFunctions>, EventName>)
@@ -47,8 +49,10 @@ export const fsm = <
     EmittableEvents extends {[key: string]: Event} = {},
 >(param: {
     states: States,
+    initialState: keyof States,
     events: Events,
     emittableEvents: EmittableEvents,
+    namespace?: string,
 }): Fsm<States, Events, {}, EmittableEvents, [], false, {}> => ({
     ...param,
     defaultHandlers: {},
