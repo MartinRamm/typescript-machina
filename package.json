@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/MartinRamm/typescript-machina#readme",
   "peerDependencies": {
-    "machina": "^4.x"
+    "machina": "^4.x",
+    "typescript": ">=4.4.2"
   }
 }
