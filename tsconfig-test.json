@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "declaration": false,
+  },
+  "include": ["test/**/*.ts", "test/**/.eslintrc.js", "*.js", ".*.js"]
+}
