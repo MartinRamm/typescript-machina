@@ -29,6 +29,9 @@ module.exports = {
 
   // add your custom rules here
   rules: {
+    '@typescript-eslint/no-unused-vars': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
+
     'prefer-promise-reject-errors': 'off',
 
     '@typescript-eslint/ban-ts-comment': [
@@ -59,6 +62,10 @@ module.exports = {
         format: ['camelCase'],
         leadingUnderscore: 'forbid',
         trailingUnderscore: 'forbid',
+        filter: {
+          regex: '(__brand|_onEnter|_onExit)',
+          match: false,
+        },
       },
 
       {

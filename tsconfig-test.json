@@ -6,5 +6,5 @@
     "noUnusedParameters": false,
     "declaration": false,
   },
-  "include": ["test/**/*.ts", "test/**/.eslintrc.js", "*.js", ".*.js"]
+  "include": ["test/**/*.ts", "test/**/*.js", "src/**/.eslintrc.js", "*.js", ".*.js"]
 }
