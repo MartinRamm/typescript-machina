@@ -3,8 +3,12 @@ import type {Event} from "./event";
 import type {EventFn} from "./EventFn";
 import type {MachinaThis, MachinaThisInitializeFn} from "./MachinaThis";
 import type {SpecialEventNames} from "./SpecialEventNames";
+import type {DefineState} from "./defineState";
+import machina from "machina";
+import type {InstantiableFsm} from "machina";
 
-type GenericUserFunction<F extends Fsm = any, Args extends any[] = any, ReturnType extends any = any> = (this: MachinaThis<F> | MachinaThisInitializeFn<F>, ...args: Args) => ReturnType;
+type GenericUserFunction<F extends Fsm = any, Args extends any[] = any, ReturnType extends any = any> =
+    (this: MachinaThis<F> | MachinaThisInitializeFn<F>, ...args: Args) => ReturnType;
 
 export type Fsm<
     States extends {[key: string]: State} = any,
@@ -21,7 +25,7 @@ export type Fsm<
     readonly emittableEvents: EmittableEvents,
     readonly defaultHandlers: DefaultHandlers,
     readonly userDefinedFunctions: UserDefinedFunctions,
-    readonly initializeFn: IsInitializeFnAdded extends false ?  undefined : ((this: MachinaThisInitializeFn<Fsm<States, Events, DefaultHandlers, EmittableEvents, ConstructorArguments, IsInitializeFnAdded, UserDefinedFunctions>>, ...args: ConstructorArguments) => any),
+    readonly initializeFn: IsInitializeFnAdded extends false ? undefined : ((this: MachinaThisInitializeFn<Fsm<States, Events, DefaultHandlers, EmittableEvents, ConstructorArguments, IsInitializeFnAdded, UserDefinedFunctions>>, ...args: ConstructorArguments) => any),
     readonly namespace?: string,
     readonly addDefaultHandler:
         <EventName extends Exclude<SpecialEventNames | keyof Events, keyof DefaultHandlers>>
@@ -33,14 +37,16 @@ export type Fsm<
             => Fsm<States, Events, DefaultHandlers, EmittableEvents, NewConstructorArguments, true, UserDefinedFunctions>,
     readonly addUserDefinedFn:
         <FnName extends string,
-        Fn extends
-            FnName extends keyof UserDefinedFunctions
+            Fn extends FnName extends keyof UserDefinedFunctions
                 ? 'Function with given name already defined'
                 : FnName extends keyof MachinaThis<Fsm> | 'deferUntilTransition' | 'deferAndTransition'
                     ? 'Function name is a used by machina'
                     : GenericUserFunction<Fsm<States, Events, DefaultHandlers, EmittableEvents, ConstructorArguments, IsInitializeFnAdded, UserDefinedFunctions>>>
         (name: FnName, fn: Fn)
             => Fsm<States, Events, DefaultHandlers, EmittableEvents, ConstructorArguments, IsInitializeFnAdded, UserDefinedFunctions & Record<FnName, typeof fn>>,
+    readonly build: (states: {
+        [state in keyof States]: DefineState<Fsm<States, Events, DefaultHandlers, EmittableEvents, ConstructorArguments, IsInitializeFnAdded, UserDefinedFunctions>, state>
+    }) => InstantiableFsm<Fsm<States, Events, DefaultHandlers, EmittableEvents, ConstructorArguments, IsInitializeFnAdded, UserDefinedFunctions>>,
 };
 
 export const fsm = <
@@ -82,5 +88,20 @@ export const fsm = <
             },
         } as Fsm;
     },
-});
+    build(states) {
+        const statesWithDefaultHandler = {
+            ...states
+        };
+        Object.keys(statesWithDefaultHandler).forEach((key: keyof typeof statesWithDefaultHandler) => {
+            statesWithDefaultHandler[key] = Object.assign({}, this.defaultHandlers, states[key]);
+        })
 
+        return machina.Fsm.extend({
+            ...(this.initializeFn === undefined ? {} : {initialize: this.initializeFn}),
+            ...('namespace' in this ? {namespace: this.namespace} : {}),
+            states: statesWithDefaultHandler,
+            initialState: this.initialState,
+            ...this.userDefinedFunctions,
+        });
+    },
+});
