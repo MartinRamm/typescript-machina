@@ -9,7 +9,7 @@ fetch('https://registry.npmjs.org/typescript')
       .filter(version => {
         if (version.match(/^[1-9][0-9]*\.[0-9]+\.[0-9]+$/)) {
           const [major, minor] = version.split('.').map(num => Number.parseInt(num));
-          return major > 4 || (major === 4 && minor >= 4);
+          return major > 4 || (major === 4 && minor >= 7);
         }
         return false;
       })
