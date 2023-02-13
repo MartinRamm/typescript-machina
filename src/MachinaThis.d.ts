@@ -2,6 +2,7 @@ import { Fsm } from './fsm';
 import { SpecialEventNames } from './SpecialEventNames';
 import { EventFn } from './EventFn';
 import { GetEventArguments } from './event';
+import { GetEmittableEventArguments } from './emittableEvent';
 import { InternallyEmittedEvents } from './InternallyEmittedEvents';
 
 type EventHandlerFn<
@@ -15,14 +16,14 @@ type EventHandlerFn<
   : EventName extends keyof F['emittableEvents']
   ? (
       this: MachinaThisInitializeFn<F> | MachinaThis<F>,
-      ...args: GetEventArguments<F['emittableEvents'][EventName]>
+      ...args: GetEmittableEventArguments<F['emittableEvents'][EventName]>
     ) => any
   : (
       this: MachinaThisInitializeFn<F> | MachinaThis<F>,
       eventName: keyof InternallyEmittedEvents<F> | keyof F['emittableEvents'],
       ...data:
-        | GetEventArguments<InternallyEmittedEvents<F>[keyof InternallyEmittedEvents<F>]>
-        | GetEventArguments<F['emittableEvents'][keyof F['emittableEvents']]>
+        | GetEmittableEventArguments<InternallyEmittedEvents<F>[keyof InternallyEmittedEvents<F>]>
+        | GetEmittableEventArguments<F['emittableEvents'][keyof F['emittableEvents']]>
     ) => any;
 
 export type MachinaThisInitializeFn<F extends Fsm> = {
@@ -55,7 +56,7 @@ export type MachinaThisInitializeFn<F extends Fsm> = {
   ): void;
   emit<EventName extends keyof F['emittableEvents']>(
     eventName: EventName,
-    ...args: GetEventArguments<F['emittableEvents'][EventName]>
+    ...args: GetEmittableEventArguments<F['emittableEvents'][EventName]>
   ): void;
   on<EventName extends '*' | keyof InternallyEmittedEvents<F> | keyof F['emittableEvents']>(
     eventName: EventName,
