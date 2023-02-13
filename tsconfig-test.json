@@ -1,9 +1,9 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "noEmit": false,
+    "lib": ["es2022", "WebWorker"], //TODO remove line when fetch is bundled into as a es library
+    "noEmit": true,
     "noUnusedLocals": false,
-    "noUnusedParameters": false,
     "declaration": false,
   },
   "include": ["test/**/*.ts", "test/**/*.js", "src/**/.eslintrc.js", "*.js", ".*.js"]
