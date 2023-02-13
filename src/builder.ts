@@ -1,40 +1,41 @@
 import type { State } from './state';
-import type { Event } from './event';
-import type { EventFn } from './EventFn';
+import type { Handler } from './handler';
+import type { HandlerFn } from './HandlerFn';
 import type { MachinaThis, MachinaThisInitializeFn } from './MachinaThis';
 import type { SpecialEventNames } from './SpecialEventNames';
 import type { DefineState } from './defineState';
+import { Event } from './event';
 import machina from 'machina';
 
-type GenericUserFunction<F extends Fsm = any, Args extends any[] = any, ReturnType = any> = (
+type GenericUserFunction<F extends FsmBuilder = any, Args extends any[] = any, ReturnType = any> = (
   this: MachinaThis<F> | MachinaThisInitializeFn<F>,
   ...args: Args
 ) => ReturnType;
 
-export type Fsm<
+export type FsmBuilder<
   States extends { [key: string]: State } = any,
+  Handlers extends { [key: string]: Handler } = any,
+  DefaultHandlers extends { [key: string]: HandlerFn } = any,
   Events extends { [key: string]: Event } = any,
-  DefaultHandlers extends { [key: string]: EventFn } = any,
-  EmittableEvents extends { [key: string]: Event } = any,
   ConstructorArguments extends any[] = any,
   IsInitializeFnAdded extends boolean = any,
   UserDefinedFunctions extends { [key: string]: GenericUserFunction } = any
 > = {
   readonly states: States;
   readonly initialState: keyof States;
-  readonly events: Events;
-  readonly emittableEvents: EmittableEvents;
+  readonly handlers: Handlers;
   readonly defaultHandlers: DefaultHandlers;
+  readonly events: Events;
   readonly userDefinedFunctions: UserDefinedFunctions;
   readonly initializeFn: IsInitializeFnAdded extends false
     ? undefined
     : (
         this: MachinaThisInitializeFn<
-          Fsm<
+          FsmBuilder<
             States,
-            Events,
+            Handlers,
             DefaultHandlers,
-            EmittableEvents,
+            Events,
             ConstructorArguments,
             IsInitializeFnAdded,
             UserDefinedFunctions
@@ -43,25 +44,25 @@ export type Fsm<
         ...args: ConstructorArguments
       ) => any;
   readonly namespace?: string;
-  readonly addDefaultHandler: <EventName extends Exclude<SpecialEventNames | keyof Events, keyof DefaultHandlers>>(
+  readonly addDefaultHandler: <EventName extends Exclude<SpecialEventNames | keyof Handlers, keyof DefaultHandlers>>(
     eventName: EventName,
-    fn: EventFn<
-      Fsm<
+    fn: HandlerFn<
+      FsmBuilder<
         States,
-        Events,
+        Handlers,
         DefaultHandlers,
-        EmittableEvents,
+        Events,
         ConstructorArguments,
         IsInitializeFnAdded,
         UserDefinedFunctions
       >,
       EventName
     >
-  ) => Fsm<
+  ) => FsmBuilder<
     States,
-    Events,
+    Handlers,
     DefaultHandlers & Record<EventName, typeof fn>,
-    EmittableEvents,
+    Events,
     ConstructorArguments,
     IsInitializeFnAdded,
     UserDefinedFunctions
@@ -71,23 +72,23 @@ export type Fsm<
     : <NewConstructorArguments extends any[]>(
         fn: (
           this: MachinaThisInitializeFn<
-            Fsm<States, Events, DefaultHandlers, EmittableEvents, NewConstructorArguments, true, UserDefinedFunctions>
+            FsmBuilder<States, Handlers, DefaultHandlers, Events, NewConstructorArguments, true, UserDefinedFunctions>
           >,
           ...args: NewConstructorArguments
         ) => any
-      ) => Fsm<States, Events, DefaultHandlers, EmittableEvents, NewConstructorArguments, true, UserDefinedFunctions>;
+      ) => FsmBuilder<States, Handlers, DefaultHandlers, Events, NewConstructorArguments, true, UserDefinedFunctions>;
   readonly addUserDefinedFn: <
     FnName extends string,
     Fn extends FnName extends keyof UserDefinedFunctions
       ? 'Function with given name already defined'
-      : FnName extends keyof MachinaThis<Fsm> | 'deferUntilTransition' | 'deferAndTransition'
+      : FnName extends keyof MachinaThis<FsmBuilder> | 'deferUntilTransition' | 'deferAndTransition'
       ? 'Function name is a used by machina'
       : GenericUserFunction<
-          Fsm<
+          FsmBuilder<
             States,
-            Events,
+            Handlers,
             DefaultHandlers,
-            EmittableEvents,
+            Events,
             ConstructorArguments,
             IsInitializeFnAdded,
             UserDefinedFunctions
@@ -96,22 +97,22 @@ export type Fsm<
   >(
     name: FnName,
     fn: Fn
-  ) => Fsm<
+  ) => FsmBuilder<
     States,
-    Events,
+    Handlers,
     DefaultHandlers,
-    EmittableEvents,
+    Events,
     ConstructorArguments,
     IsInitializeFnAdded,
     UserDefinedFunctions & Record<FnName, typeof fn>
   >;
   readonly build: (states: {
     [state in keyof States]: DefineState<
-      Fsm<
+      FsmBuilder<
         States,
-        Events,
+        Handlers,
         DefaultHandlers,
-        EmittableEvents,
+        Events,
         ConstructorArguments,
         IsInitializeFnAdded,
         UserDefinedFunctions
@@ -120,11 +121,11 @@ export type Fsm<
     >;
   }) => ReturnType<
     typeof machina.Fsm.extend<
-      Fsm<
+      FsmBuilder<
         States,
-        Events,
+        Handlers,
         DefaultHandlers,
-        EmittableEvents,
+        Events,
         ConstructorArguments,
         IsInitializeFnAdded,
         UserDefinedFunctions
@@ -133,17 +134,17 @@ export type Fsm<
   >;
 };
 
-export const fsm = <
+export const builder = <
   States extends { [key: string]: State },
-  Events extends { [key: string]: Event },
-  EmittableEvents extends { [key: string]: Event } = Record<string, never>
+  Handlers extends { [key: string]: Handler },
+  Events extends { [key: string]: Event } = Record<string, never>
 >(param: {
   states: States;
   initialState: keyof States;
+  handlers: Handlers;
   events: Events;
-  emittableEvents: EmittableEvents;
   namespace?: string;
-}): Fsm<States, Events, Record<string, never>, EmittableEvents, [], false, Record<string, never>> => ({
+}): FsmBuilder<States, Handlers, Record<string, never>, Events, [], false, Record<string, never>> => ({
   ...param,
   defaultHandlers: {},
   initializeFn: undefined,
@@ -155,13 +156,13 @@ export const fsm = <
         ...this.defaultHandlers,
         [eventName]: eventFn,
       },
-    } as Fsm;
+    } as FsmBuilder;
   },
   addInitializeFn(initializeFn) {
     return {
       ...this,
       initializeFn,
-    } as Fsm;
+    } as FsmBuilder;
   },
   addUserDefinedFn(name, fn) {
     return {
@@ -170,7 +171,7 @@ export const fsm = <
         ...this.userDefinedFunctions,
         [name]: fn,
       },
-    } as Fsm;
+    } as FsmBuilder;
   },
   build(states) {
     const statesWithDefaultHandler = {

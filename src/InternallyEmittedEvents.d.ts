@@ -1,9 +1,9 @@
-import { Fsm } from './fsm';
+import { FsmBuilder } from './builder';
 import type { CurrentAction, CurrentActionArgs } from './MachinaThis';
-import {EmittableEvent} from "./emittableEvent";
+import { Event } from './event';
 
-export type InternallyEmittedEvents<F extends Fsm> = {
-  transition: EmittableEvent<
+export type InternallyEmittedEvents<F extends FsmBuilder> = {
+  transition: Event<
     [
       {
         fromState: undefined | keyof F['states'];
@@ -14,10 +14,10 @@ export type InternallyEmittedEvents<F extends Fsm> = {
     ]
   >;
   transitioned: InternallyEmittedEvents<F>['transition'];
-  handling: EmittableEvent<
+  handling: Event<
     [
       {
-        inputType: keyof F['events'];
+        inputType: keyof F['handlers'];
         delegated: boolean;
         ticket: unknown;
         namespace: string;
@@ -25,7 +25,7 @@ export type InternallyEmittedEvents<F extends Fsm> = {
     ]
   >;
   handled: InternallyEmittedEvents<F>['handling'];
-  nohandler: EmittableEvent<
+  nohandler: Event<
     [
       {
         inputType: string;
@@ -35,7 +35,7 @@ export type InternallyEmittedEvents<F extends Fsm> = {
       }
     ]
   >;
-  invalidstate: EmittableEvent<
+  invalidstate: Event<
     [
       {
         state: keyof F['states'];
@@ -44,7 +44,7 @@ export type InternallyEmittedEvents<F extends Fsm> = {
       }
     ]
   >;
-  deferred: EmittableEvent<
+  deferred: Event<
     [
       {
         state: keyof F['states'];

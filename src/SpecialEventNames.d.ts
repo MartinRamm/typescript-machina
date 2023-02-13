@@ -1,10 +1,10 @@
-import { Fsm } from './fsm';
+import { FsmBuilder } from './builder';
 import { GetStateArguments } from './state';
 import { MachinaThisEventFn } from './MachinaThisInitializeFn';
 
 export type SpecialEventNames = '*' | '_onEnter' | '_onExit';
 export type GetSpecialEventArguments<
-  F extends Fsm,
+  F extends FsmBuilder,
   EventName extends SpecialEventNames,
   StateName extends keyof F['states']
 > = EventName extends '*'

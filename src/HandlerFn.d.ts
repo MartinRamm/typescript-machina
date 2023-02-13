@@ -1,13 +1,16 @@
-import { Fsm } from './fsm';
-import { GetEventArguments } from './event';
+import { FsmBuilder } from './builder';
+import { GetHandlerArguments } from './handler';
 import { GetSpecialEventArguments, SpecialEventNames } from './SpecialEventNames';
 import { GetStateArguments } from './state';
 import { CurrentActionArgs, MachinaThis } from './MachinaThis';
 
-type MachinaThisEventFn<F extends Fsm, EventName extends SpecialEventNames | keyof F['events']> = MachinaThis<F> & {
+type MachinaThisHandlerFn<
+  F extends FsmBuilder,
+  EventName extends SpecialEventNames | keyof F['handlers']
+> = MachinaThis<F> & {
   readonly currentActionArgs: EventName extends SpecialEventNames
     ? CurrentActionArgs<F>
-    : EventName extends keyof F['events']
+    : EventName extends keyof F['handlers']
     ? CurrentActionArgs<F, EventName>
     : never;
   readonly inExitHandler: EventName extends '_onExit' ? true : false;
@@ -25,17 +28,17 @@ type MachinaThisEventFn<F extends Fsm, EventName extends SpecialEventNames | key
   ): void;
 };
 
-export type EventFn<
-  F extends Fsm = Fsm,
-  EventName extends SpecialEventNames | keyof F['events'] = SpecialEventNames | keyof F['events'],
+export type HandlerFn<
+  F extends FsmBuilder = FsmBuilder,
+  EventName extends SpecialEventNames | keyof F['handlers'] = SpecialEventNames | keyof F['handlers'],
   StateName extends keyof F['states'] = keyof F['states']
 > =
   | keyof { [key in keyof F['states'] as [] extends GetStateArguments<F['states'][key]> ? key : never]: any }
   | ((
-      this: MachinaThisEventFn<F, EventName>,
+      this: MachinaThisHandlerFn<F, EventName>,
       ...args: EventName extends SpecialEventNames
         ? GetSpecialEventArguments<F, EventName, StateName>
-        : EventName extends keyof F['events']
-        ? GetEventArguments<F['events'][EventName]>
+        : EventName extends keyof F['handlers']
+        ? GetHandlerArguments<F['handlers'][EventName]>
         : never
     ) => any);

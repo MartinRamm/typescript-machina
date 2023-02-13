@@ -1,5 +1,5 @@
 declare module 'machina' {
-  import type { Fsm as TypescriptFsm } from './fsm';
+  import type { FsmBuilder as TypescriptFsm } from './builder';
   import type { MachinaThis } from './MachinaThis';
 
   //eslint-disable-next-line @typescript-eslint/naming-convention
