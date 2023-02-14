@@ -6,6 +6,7 @@ import type { SpecialEventNames } from './SpecialEventNames';
 import type { DefineState } from './defineState';
 import { Event } from './event';
 import machina from 'machina';
+import {InstantiatableMachina} from "./typeRoot/machina/InstantiatableMachina";
 
 type GenericUserFunction<F extends FsmBuilder = any, Args extends any[] = any, ReturnType = any> = (
   this: MachinaThis<F> | MachinaThisInitializeFn<F>,
@@ -119,19 +120,13 @@ export type FsmBuilder<
       >,
       state
     >;
-  }) => ReturnType<
-    typeof machina.Fsm.extend<
-      FsmBuilder<
-        States,
-        Handlers,
-        DefaultHandlers,
-        Events,
-        ConstructorArguments,
-        IsInitializeFnAdded,
-        UserDefinedFunctions
-      >
-    >
-  >;
+  }) => InstantiatableMachina<FsmBuilder<States,
+    Handlers,
+    DefaultHandlers,
+    Events,
+    ConstructorArguments,
+    IsInitializeFnAdded,
+    UserDefinedFunctions>>;
 };
 
 export const builder = <
@@ -142,10 +137,11 @@ export const builder = <
   states: States;
   initialState: keyof States;
   handlers: Handlers;
-  events: Events;
+  events?: Events;
   namespace?: string;
 }): FsmBuilder<States, Handlers, Record<string, never>, Events, [], false, Record<string, never>> => ({
   ...param,
+  events: (param.events || {}) as Events,
   defaultHandlers: {},
   initializeFn: undefined,
   userDefinedFunctions: {},

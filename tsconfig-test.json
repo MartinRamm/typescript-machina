@@ -6,5 +6,5 @@
     "resolveJsonModule": true,
     "noUnusedLocals": false,
   },
-  "include": ["src/**/*.ts", "test/**/*.ts", "test/**/*.js", "src/**/.eslintrc.js", "*.js", ".*.js"]
+  "include": ["src/**/*.ts", "test/**/*.ts", "test/**/*.js", "test/**/.eslintrc.js", "src/**/.eslintrc.js", "*.js", ".*.js"]
 }

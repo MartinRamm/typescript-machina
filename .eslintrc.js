@@ -146,6 +146,12 @@ module.exports = {
       rules: {
         'jest/valid-title': 'off',
         'jest/prefer-expect-assertions': 'off',
+        'jest/expect-expect': [
+          'error',
+          {
+            'assertFunctionNames': ['expect', 'expectTypeOf'],
+          }
+        ],
         'jest/consistent-test-it': [
           'error',
           {
