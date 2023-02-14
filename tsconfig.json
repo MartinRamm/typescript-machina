@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "target": "ES6",
     "module": "CommonJS",
-    "resolveJsonModule": true,
     "noImplicitAny": true,
     "allowJs": false,
     "checkJs": false,
@@ -25,7 +25,8 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "typeRoots": [
-      "node_modules/@types"
+      "node_modules/@types",
+      "src/typeRoot"
     ]
   },
   "include": ["src/**/*.ts"]

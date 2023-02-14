@@ -3,8 +3,8 @@
   "compilerOptions": {
     "lib": ["es2022", "WebWorker"], //TODO remove line when fetch is bundled into as a es library
     "noEmit": true,
+    "resolveJsonModule": true,
     "noUnusedLocals": false,
-    "declaration": false,
   },
-  "include": ["test/**/*.ts", "test/**/*.js", "src/**/.eslintrc.js", "*.js", ".*.js"]
+  "include": ["src/**/*.ts", "test/**/*.ts", "test/**/*.js", "src/**/.eslintrc.js", "*.js", ".*.js"]
 }
