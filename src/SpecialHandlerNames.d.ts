@@ -1,15 +1,16 @@
 import { FsmBuilder } from './builder';
 import { GetStateArguments } from './state';
 import { MachinaThisEventFn } from './MachinaThisInitializeFn';
+import { GetHandlerArguments } from './handler';
 
-export type SpecialEventNames = '*' | '_onEnter' | '_onExit';
-export type GetSpecialEventArguments<
+export type SpecialHandlerNames = '*' | '_onEnter' | '_onExit';
+export type GetSpecialHandlerArguments<
   F extends FsmBuilder,
-  EventName extends SpecialEventNames,
+  HandlerName extends SpecialHandlerNames,
   StateName extends keyof F['states']
-> = EventName extends '*'
-  ? any[]
-  : EventName extends '_onEnter'
+> = HandlerName extends '*'
+  ? GetHandlerArguments<F['handlers'][keyof F['handlers']]>
+  : HandlerName extends '_onEnter'
   ? keyof F['states'] extends StateName
     ? never
     : GetStateArguments<F[StateName]>

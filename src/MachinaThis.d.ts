@@ -1,5 +1,5 @@
 import { FsmBuilder } from './builder';
-import { SpecialEventNames } from './SpecialEventNames';
+import { SpecialHandlerNames } from './SpecialHandlerNames';
 import { HandlerFn } from './HandlerFn';
 import { GetHandlerArguments } from './handler';
 import { GetEventArguments } from './event';
@@ -33,7 +33,7 @@ export type MachinaThisInitializeFn<F extends FsmBuilder> = {
     [state in keyof F['states']]: {
       [event in keyof F['defaultHandlers']]: HandlerFn<F, event>;
     } & {
-      [event in Exclude<SpecialEventNames | keyof F['handlers'], keyof F['defaultHandlers']>]?: HandlerFn<F, event>;
+      [event in Exclude<SpecialHandlerNames | keyof F['handlers'], keyof F['defaultHandlers']>]?: HandlerFn<F, event>;
     };
   };
   readonly initialState: keyof F['states'];

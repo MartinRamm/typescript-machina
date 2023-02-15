@@ -2,7 +2,7 @@ import type { State } from './state';
 import type { Handler } from './handler';
 import type { HandlerFn } from './HandlerFn';
 import type { MachinaThis, MachinaThisInitializeFn } from './MachinaThis';
-import type { SpecialEventNames } from './SpecialEventNames';
+import type { SpecialHandlerNames } from './SpecialHandlerNames';
 import type { DefineState } from './defineState';
 import { Event } from './event';
 import machina from 'machina';
@@ -45,7 +45,7 @@ export type FsmBuilder<
         ...args: ConstructorArguments
       ) => any;
   readonly namespace?: string;
-  readonly addDefaultHandler: <EventName extends Exclude<SpecialEventNames | keyof Handlers, keyof DefaultHandlers>>(
+  readonly addDefaultHandler: <EventName extends Exclude<SpecialHandlerNames | keyof Handlers, keyof DefaultHandlers>>(
     eventName: EventName,
     fn: HandlerFn<
       FsmBuilder<
