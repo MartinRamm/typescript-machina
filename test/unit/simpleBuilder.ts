@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 import { expectTypeOf } from 'expect-type';
-import {fsm} from '../../src';
+import { fsm } from '../../src';
 
 describe('simple builder', () => {
   test('result of builder can be instantiated', () => {
@@ -14,7 +14,7 @@ describe('simple builder', () => {
       },
     });
     const stateMachine = builder.build({
-      state1: fsm.defineState({})
+      state1: fsm.defineState({}),
     });
     expectTypeOf(stateMachine).constructorParameters.toEqualTypeOf<[]>();
     const instance = new stateMachine();

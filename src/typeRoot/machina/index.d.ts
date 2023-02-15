@@ -4,9 +4,7 @@ declare module 'machina' {
 
   //eslint-disable-next-line @typescript-eslint/naming-convention
   const Fsm: {
-    extend<F extends TypescriptFsm>(
-      params: object
-    ): InstantiatableMachina<F>;
+    extend<F extends TypescriptFsm>(params: object): InstantiatableMachina<F>;
   };
 
   //eslint-disable-next-line import/no-default-export

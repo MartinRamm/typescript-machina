@@ -149,8 +149,8 @@ module.exports = {
         'jest/expect-expect': [
           'error',
           {
-            'assertFunctionNames': ['expect', 'expectTypeOf'],
-          }
+            assertFunctionNames: ['expect', 'expectTypeOf'],
+          },
         ],
         'jest/consistent-test-it': [
           'error',

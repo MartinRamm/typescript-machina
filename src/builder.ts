@@ -6,7 +6,7 @@ import type { SpecialEventNames } from './SpecialEventNames';
 import type { DefineState } from './defineState';
 import { Event } from './event';
 import machina from 'machina';
-import {InstantiatableMachina} from "./typeRoot/machina/InstantiatableMachina";
+import { InstantiatableMachina } from './typeRoot/machina/InstantiatableMachina';
 
 type GenericUserFunction<F extends FsmBuilder = any, Args extends any[] = any, ReturnType = any> = (
   this: MachinaThis<F> | MachinaThisInitializeFn<F>,
@@ -120,13 +120,17 @@ export type FsmBuilder<
       >,
       state
     >;
-  }) => InstantiatableMachina<FsmBuilder<States,
-    Handlers,
-    DefaultHandlers,
-    Events,
-    ConstructorArguments,
-    IsInitializeFnAdded,
-    UserDefinedFunctions>>;
+  }) => InstantiatableMachina<
+    FsmBuilder<
+      States,
+      Handlers,
+      DefaultHandlers,
+      Events,
+      ConstructorArguments,
+      IsInitializeFnAdded,
+      UserDefinedFunctions
+    >
+  >;
 };
 
 export const builder = <
@@ -178,6 +182,7 @@ export const builder = <
       statesWithDefaultHandler[key] = Object.assign({}, this.defaultHandlers, states[key]);
     });
 
+    //eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return machina.Fsm.extend<typeof this>({
       ...(this.initializeFn === undefined ? {} : { initialize: this.initializeFn }),
       ...('namespace' in this ? { namespace: this.namespace } : {}),
