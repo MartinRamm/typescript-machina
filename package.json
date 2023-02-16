@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "lint": "eslint .",
-    "test": "jest"
+    "test": "jest",
+    "test-without-compatibility": "jest --testPathIgnorePatterns \".+-compatibility.ts$\""
   },
   "repository": {
     "type": "git",
