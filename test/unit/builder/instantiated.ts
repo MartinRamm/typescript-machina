@@ -1,8 +1,8 @@
 import { describe, expect, test } from '@jest/globals';
 import { expectTypeOf } from 'expect-type';
-import { fsm } from '../../src';
+import { fsm } from '../../../src';
 
-describe('simple builder', () => {
+describe('builder', () => {
   test('result of builder can be instantiated', () => {
     const builder = fsm.builder({
       states: {
