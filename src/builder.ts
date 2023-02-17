@@ -1,6 +1,6 @@
 import type { State } from './state';
 import type { Handler } from './handler';
-import type { HandlerFn } from './HandlerFn';
+import type { HandlerFn } from './handlerFn';
 import type { MachinaThis, MachinaThisInitializeFn } from './MachinaThis';
 import type { SpecialHandlerNames } from './SpecialHandlerNames';
 import type { DefineState } from './defineState';
@@ -80,10 +80,10 @@ export type FsmBuilder<
       ) => FsmBuilder<States, Handlers, DefaultHandlers, Events, NewConstructorArguments, true, UserDefinedFunctions>;
   readonly addUserDefinedFn: <
     FnName extends string,
-    Fn extends FnName extends keyof UserDefinedFunctions
-      ? 'Function with given name already defined'
-      : FnName extends keyof MachinaThis<FsmBuilder> | 'deferUntilTransition' | 'deferAndTransition'
-      ? 'Function name is a used by machina'
+    Fn extends keyof UserDefinedFunctions extends FnName
+      ? { error: 'Function with given name already defined' }
+      : keyof MachinaThis<FsmBuilder> | 'deferUntilTransition' | 'deferAndTransition' extends FnName
+      ? { error: 'Function name is used by machina' }
       : GenericUserFunction<
           FsmBuilder<
             States,

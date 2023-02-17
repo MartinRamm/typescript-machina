@@ -1,12 +1,12 @@
 import type { FsmBuilder } from './builder';
 import type { SpecialHandlerNames } from './SpecialHandlerNames';
-import type { HandlerFn } from './HandlerFn';
+import type { HandlerFn } from './handlerFn';
 import type { GetStateArguments } from './state';
 
 type DefineStateInput<F extends FsmBuilder, StateName extends keyof F['states']> = {
-  [eventName in SpecialHandlerNames | keyof F['handlers']]?: HandlerFn<F, eventName, StateName>;
+  [handlerName in SpecialHandlerNames | keyof F['handlers']]?: HandlerFn<F, handlerName, StateName>;
 } & [] extends GetStateArguments<F['states'][StateName]>
-  ? Record<string, never>
+  ? { _onEnter?: HandlerFn<F, '_onEnter', StateName> }
   : { _onEnter: HandlerFn<F, '_onEnter', StateName> };
 
 export type DefineState<F extends FsmBuilder, StateName extends keyof F['states']> = DefineStateInput<F, StateName> & {

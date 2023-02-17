@@ -1,6 +1,6 @@
 import { FsmBuilder } from './builder';
 import { SpecialHandlerNames } from './SpecialHandlerNames';
-import { HandlerFn } from './HandlerFn';
+import { HandlerFn } from './handlerFn';
 import { GetHandlerArguments } from './handler';
 import { GetEventArguments } from './event';
 import { InternallyEmittedEvents } from './InternallyEmittedEvents';
@@ -63,7 +63,15 @@ export type MachinaThisInitializeFn<F extends FsmBuilder> = {
     eventName: EventName,
     fn: EventHandlerFn<F, EventName>
   ): void;
-} & F['userDefinedFunctions'];
+} & {
+  //we need to remove the "this" parameter in the user defined functions, to avoid error TS2684.
+  // Hence `& F['userDefinedFunctions']` doesn't work
+  [userDefinedFn in keyof F['userDefinedFunctions']]: F['userDefinedFunctions'][userDefinedFn] extends (
+    ...args: infer Args
+  ) => infer ReturnType
+    ? (...args: Args) => ReturnType
+    : never;
+};
 
 export type CurrentActionArgs<F extends FsmBuilder, EventName extends keyof F['handlers'] = keyof F['handlers']> = [
   { inputType: EventName; delegated: boolean; ticket: any },

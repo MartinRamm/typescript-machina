@@ -1,5 +1,4 @@
-import { describe, expect, test } from '@jest/globals';
-import { expectTypeOf } from 'expect-type';
+import { describe, test } from '@jest/globals';
 import { fsm } from '../../../src';
 
 describe('builder', () => {

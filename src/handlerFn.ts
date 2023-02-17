@@ -20,7 +20,11 @@ type MachinaThisHandlerFn<
   //forwards all args except the first one). So this fn can only accept states that require no or only one argument.
   deferAndTransition<
     StateName extends keyof {
-      [key in keyof F['states'] as GetStateArguments<F['states'][key]> extends [] | [any] ? key : never]: any;
+      [key in keyof F['states'] as GetStateArguments<F['states'][key]> extends [] | [any]
+        ? key
+        : any[] extends GetStateArguments<F['states'][key]>
+        ? key
+        : never]: any;
     }
   >(
     stateName: StateName,
@@ -42,3 +46,5 @@ export type HandlerFn<
         ? GetHandlerArguments<F['handlers'][EventName]>
         : never
     ) => any);
+
+export const handlerFn = <Fn extends HandlerFn>(fn: Fn) => fn;
