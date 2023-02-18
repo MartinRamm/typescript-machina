@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint .",
     "test": "jest && tsc --project tsconfig-test.json --noEmit",
-    "test-without-compatibility": "jest --testPathIgnorePatterns \".+-compatibility.ts$\""
+    "test-without-compatibility": "jest --testPathIgnorePatterns \".+-compatibility.ts$\" --coverage=false"
   },
   "repository": {
     "type": "git",
