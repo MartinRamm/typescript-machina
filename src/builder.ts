@@ -20,10 +20,11 @@ export type FsmBuilder<
   Events extends { [key: string]: Event } = any,
   ConstructorArguments extends any[] = any,
   IsInitializeFnAdded extends boolean = any,
-  UserDefinedFunctions extends { [key: string]: GenericUserFunction } = any
+  UserDefinedFunctions extends { [key: string]: GenericUserFunction } = any,
+  InitialState extends keyof States = any
 > = {
   readonly states: States;
-  readonly initialState: keyof States;
+  readonly initialState: InitialState;
   readonly handlers: Handlers;
   readonly defaultHandlers: DefaultHandlers;
   readonly events: Events;
@@ -39,7 +40,8 @@ export type FsmBuilder<
             Events,
             ConstructorArguments,
             IsInitializeFnAdded,
-            UserDefinedFunctions
+            UserDefinedFunctions,
+            InitialState
           >
         >,
         ...args: ConstructorArguments
@@ -55,7 +57,8 @@ export type FsmBuilder<
         Events,
         ConstructorArguments,
         IsInitializeFnAdded,
-        UserDefinedFunctions
+        UserDefinedFunctions,
+        InitialState
       >,
       EventName
     >
@@ -66,18 +69,37 @@ export type FsmBuilder<
     Events,
     ConstructorArguments,
     IsInitializeFnAdded,
-    UserDefinedFunctions
+    UserDefinedFunctions,
+    InitialState
   >;
   readonly addInitializeFn: IsInitializeFnAdded extends true
     ? never
     : <NewConstructorArguments extends any[]>(
         fn: (
           this: MachinaThisInitializeFn<
-            FsmBuilder<States, Handlers, DefaultHandlers, Events, NewConstructorArguments, true, UserDefinedFunctions>
+            FsmBuilder<
+              States,
+              Handlers,
+              DefaultHandlers,
+              Events,
+              NewConstructorArguments,
+              true,
+              UserDefinedFunctions,
+              InitialState
+            >
           >,
           ...args: NewConstructorArguments
         ) => any
-      ) => FsmBuilder<States, Handlers, DefaultHandlers, Events, NewConstructorArguments, true, UserDefinedFunctions>;
+      ) => FsmBuilder<
+        States,
+        Handlers,
+        DefaultHandlers,
+        Events,
+        NewConstructorArguments,
+        true,
+        UserDefinedFunctions,
+        InitialState
+      >;
   readonly addUserDefinedFn: <
     FnName extends string,
     Fn extends keyof UserDefinedFunctions extends FnName
@@ -92,7 +114,8 @@ export type FsmBuilder<
             Events,
             ConstructorArguments,
             IsInitializeFnAdded,
-            UserDefinedFunctions
+            UserDefinedFunctions,
+            InitialState
           >
         >
   >(
@@ -105,7 +128,8 @@ export type FsmBuilder<
     Events,
     ConstructorArguments,
     IsInitializeFnAdded,
-    UserDefinedFunctions & Record<FnName, typeof fn>
+    UserDefinedFunctions & Record<FnName, typeof fn>,
+    InitialState
   >;
   readonly build: (states: {
     [state in keyof States]: DefineState<
@@ -116,7 +140,8 @@ export type FsmBuilder<
         Events,
         ConstructorArguments,
         IsInitializeFnAdded,
-        UserDefinedFunctions
+        UserDefinedFunctions,
+        InitialState
       >,
       state
     >;
@@ -128,7 +153,8 @@ export type FsmBuilder<
       Events,
       ConstructorArguments,
       IsInitializeFnAdded,
-      UserDefinedFunctions
+      UserDefinedFunctions,
+      InitialState
     >
   >;
 };
@@ -136,14 +162,15 @@ export type FsmBuilder<
 export const builder = <
   States extends { [key: string]: State },
   Handlers extends { [key: string]: Handler },
+  InitialState extends keyof States,
   Events extends { [key: string]: Event } = Record<string, never>
 >(param: {
   states: States;
-  initialState: keyof States;
+  initialState: InitialState;
   handlers: Handlers;
   events?: Events;
   namespace?: string;
-}): FsmBuilder<States, Handlers, Record<string, never>, Events, [], false, Record<string, never>> => ({
+}): FsmBuilder<States, Handlers, Record<string, never>, Events, [], false, Record<string, never>, InitialState> => ({
   ...param,
   events: (param.events || {}) as Events,
   defaultHandlers: {},

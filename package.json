@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "lint": "eslint .",
-    "test": "jest",
+    "test": "jest && tsc --project tsconfig-test.json --noEmit",
     "test-without-compatibility": "jest --testPathIgnorePatterns \".+-compatibility.ts$\""
   },
   "repository": {

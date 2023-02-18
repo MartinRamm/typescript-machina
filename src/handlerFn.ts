@@ -22,7 +22,7 @@ type MachinaThisHandlerFn<
     StateName extends keyof {
       [key in keyof F['states'] as GetStateArguments<F['states'][key]> extends [] | [any]
         ? key
-        : any[] extends GetStateArguments<F['states'][key]>
+        : any[] extends GetStateArguments<F['states'][key]> //in case of fsm.anyState()
         ? key
         : never]: any;
     }
