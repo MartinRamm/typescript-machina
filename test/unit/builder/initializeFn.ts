@@ -133,6 +133,37 @@ describe('initializeFn', () => {
         });
         buildAndInit(b);
       });
+
+      describe('transition', () => {
+        test('tsc must fail on non-defined state', () => {
+          builder.addInitializeFn(function () {
+            //@ts-expect-error
+            this.transition('does-not-exist');
+            //@ts-expect-error
+            this.transition('handlerA');
+            //@ts-expect-error
+            this.transition('event0');
+          });
+        });
+
+        ['stateZero' as const, 'stateOne' as const, 'stateTwo' as const].forEach(state =>
+          test(`works with defined state: ${state}`, () => {
+            const b = builder.addInitializeFn(function () {
+              this.transition(state);
+            });
+            const i = buildAndInit(b);
+            expect(i.state).toEqual(state);
+          })
+        );
+      });
+
+      describe('handle', () => {});
+
+      describe('emit', () => {});
+
+      describe('on', () => {});
+
+      describe('off', () => {});
     });
   });
 });
