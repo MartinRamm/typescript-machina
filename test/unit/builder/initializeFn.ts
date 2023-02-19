@@ -406,9 +406,199 @@ describe('initializeFn', () => {
 
           expect(mockFnListenerGeneric).toHaveBeenCalledWith('event1', param);
         });
+
+        describe('this context in event handler fn', () => {
+          test('properties', () => {
+            const b = builder.addInitializeFn(function () {
+              this.on('event0', function () {
+                expect(this).toHaveProperty('states');
+                expectTypeOf(this).toHaveProperty('states');
+
+                expect(this).toHaveProperty('initialState');
+                expectTypeOf(this).toHaveProperty('initialState');
+
+                expect(this).toHaveProperty('eventListeners');
+                expectTypeOf(this).toHaveProperty('eventListeners');
+
+                expect(this).toHaveProperty('namespace');
+                expectTypeOf(this).toHaveProperty('namespace');
+
+                expect(this).toHaveProperty('useSafeEmit');
+                expectTypeOf(this).toHaveProperty('useSafeEmit');
+
+                expect(this).toHaveProperty('hierarchy');
+                expectTypeOf(this).toHaveProperty('hierarchy');
+
+                expect(this).toHaveProperty('pendingDelegations');
+                expectTypeOf(this).toHaveProperty('pendingDelegations');
+
+                expect(Object.keys(this).length).toEqual(
+                  [
+                    'states',
+                    'initialState',
+                    'eventListeners',
+                    'namespace',
+                    'useSafeEmit',
+                    'hierarchy',
+                    'pendingDelegations',
+                  ].length
+                );
+              });
+
+              this.emit('event0');
+            });
+            buildAndInit(b);
+          });
+
+          test('functions', () => {
+            const b = builder.addInitializeFn(function () {
+              this.on('transition', function () {
+                expect(this).toHaveProperty('transition');
+                expectTypeOf(this).toHaveProperty('transition');
+                expect(typeof this.transition).toEqual('function');
+                expectTypeOf(this.transition).toBeFunction();
+
+                expect(this).toHaveProperty('handle');
+                expectTypeOf(this).toHaveProperty('handle');
+                expect(typeof this.handle).toEqual('function');
+                expectTypeOf(this.handle).toBeFunction();
+
+                expect(this).toHaveProperty('emit');
+                expectTypeOf(this).toHaveProperty('emit');
+                expect(typeof this.emit).toEqual('function');
+                expectTypeOf(this.emit).toBeFunction();
+
+                expect(this).toHaveProperty('on');
+                expectTypeOf(this).toHaveProperty('on');
+                expect(typeof this.on).toEqual('function');
+                expectTypeOf(this.on).toBeFunction();
+
+                expect(this).toHaveProperty('off');
+                expectTypeOf(this).toHaveProperty('off');
+                expect(typeof this.off).toEqual('function');
+                expectTypeOf(this.off).toBeFunction();
+              });
+            });
+            buildAndInit(b);
+          });
+        });
       });
 
-      describe('on (internal events)', () => {});
+      describe('on (internal events)', () => {
+        describe('this context in event handler fn', () => {
+          test('properties', () => {
+            const b = builder.addInitializeFn(function () {
+              this.on('transition', function () {
+                expect(this).toHaveProperty('states');
+                expectTypeOf(this).toHaveProperty('states');
+
+                expect(this).toHaveProperty('initialState');
+                expectTypeOf(this).toHaveProperty('initialState');
+
+                expect(this).toHaveProperty('eventListeners');
+                expectTypeOf(this).toHaveProperty('eventListeners');
+
+                expect(this).toHaveProperty('namespace');
+                expectTypeOf(this).toHaveProperty('namespace');
+
+                expect(this).toHaveProperty('useSafeEmit');
+                expectTypeOf(this).toHaveProperty('useSafeEmit');
+
+                expect(this).toHaveProperty('hierarchy');
+                expectTypeOf(this).toHaveProperty('hierarchy');
+
+                expect(this).toHaveProperty('pendingDelegations');
+                expectTypeOf(this).toHaveProperty('pendingDelegations');
+
+                expect(this).toHaveProperty('inputQueue');
+                expectTypeOf(this).toHaveProperty('inputQueue');
+
+                expect(this).toHaveProperty('targetReplayState');
+                expectTypeOf(this).toHaveProperty('targetReplayState');
+
+                expect(this).toHaveProperty('state');
+                expectTypeOf(this).toHaveProperty('state');
+
+                expect(this).toHaveProperty('priorState');
+                expectTypeOf(this).toHaveProperty('priorState');
+
+                expect(this).toHaveProperty('priorAction');
+                expectTypeOf(this).toHaveProperty('priorAction');
+
+                expect(this).toHaveProperty('currentAction');
+                expectTypeOf(this).toHaveProperty('currentAction');
+
+                expect(this).toHaveProperty('currentActionArgs');
+                expectTypeOf(this).toHaveProperty('currentActionArgs');
+
+                expect(this).toHaveProperty('inExitHandler');
+                expectTypeOf(this).toHaveProperty('inExitHandler');
+
+                //@ts-ignore
+                console.log('priorAction', this['priorAction']);
+                console.log(Object.keys(this));
+                expect(Object.keys(this).length).toEqual(
+                  [
+                    'states',
+                    'initialState',
+                    'eventListeners',
+                    'namespace',
+                    'useSafeEmit',
+                    'hierarchy',
+                    'pendingDelegations',
+                    'inputQueue',
+                    'targetReplayState',
+                    'state',
+                    'priorState',
+                    'priorAction',
+                    'currentAction',
+                    'currentActionArgs',
+                    'inExitHandler',
+
+                    //NOT TYPED
+                    '_stamped',
+                  ].length
+                );
+              });
+            });
+            buildAndInit(b);
+          });
+
+          test('functions', () => {
+            const b = builder.addInitializeFn(function () {
+              this.on('event0', function () {
+                expect(this).toHaveProperty('transition');
+                expectTypeOf(this).toHaveProperty('transition');
+                expect(typeof this.transition).toEqual('function');
+                expectTypeOf(this.transition).toBeFunction();
+
+                expect(this).toHaveProperty('handle');
+                expectTypeOf(this).toHaveProperty('handle');
+                expect(typeof this.handle).toEqual('function');
+                expectTypeOf(this.handle).toBeFunction();
+
+                expect(this).toHaveProperty('emit');
+                expectTypeOf(this).toHaveProperty('emit');
+                expect(typeof this.emit).toEqual('function');
+                expectTypeOf(this.emit).toBeFunction();
+
+                expect(this).toHaveProperty('on');
+                expectTypeOf(this).toHaveProperty('on');
+                expect(typeof this.on).toEqual('function');
+                expectTypeOf(this.on).toBeFunction();
+
+                expect(this).toHaveProperty('off');
+                expectTypeOf(this).toHaveProperty('off');
+                expect(typeof this.off).toEqual('function');
+                expectTypeOf(this.off).toBeFunction();
+              });
+
+              this.emit('event0');
+            });
+            buildAndInit(b);
+          });
+        });
+      });
 
       describe('off', () => {});
     });

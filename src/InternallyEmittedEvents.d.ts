@@ -1,5 +1,5 @@
 import { FsmBuilder } from './builder';
-import type { CurrentAction, CurrentActionArgs } from './MachinaThis';
+import type { ActionRef, CurrentActionArgs } from './MachinaThis';
 import { Event } from './event';
 
 export type InternallyEmittedEvents<F extends FsmBuilder> = {
@@ -8,7 +8,7 @@ export type InternallyEmittedEvents<F extends FsmBuilder> = {
       {
         fromState: undefined | keyof F['states'];
         toState: keyof F['states'];
-        action: CurrentAction<F>;
+        action: ActionRef<F>;
         namespace: string;
       }
     ]

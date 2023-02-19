@@ -10,12 +10,14 @@ type EventHandlerFn<
   EventName extends '*' | keyof InternallyEmittedEvents<F> | keyof F['events']
 > = EventName extends keyof InternallyEmittedEvents<F>
   ? (
-      this: MachinaThisInitializeFn<F> | MachinaThis<F>,
+      //NOTE: internal events never have the "MachinaThisInitializeFn" context, even when triggerd from the initalize fn
+      this: MachinaThis<F>,
       ...args: GetHandlerArguments<InternallyEmittedEvents<F>[EventName]>
     ) => any
   : EventName extends keyof F['events']
-  ? (this: MachinaThisInitializeFn<F> | MachinaThis<F>, ...args: GetEventArguments<F['events'][EventName]>) => any
-  : (
+  ? //NOTE: custom events do have the "MachinaThisInitializeFn" context,when triggerd from the initalize fn!!
+    (this: MachinaThisInitializeFn<F> | MachinaThis<F>, ...args: GetEventArguments<F['events'][EventName]>) => any
+  : /* EventName extends '*' */ (
       this: MachinaThisInitializeFn<F> | MachinaThis<F>,
       eventName: keyof InternallyEmittedEvents<F> | keyof F['events'],
       ...data:
@@ -78,7 +80,7 @@ export type CurrentActionArgs<F extends FsmBuilder, EventName extends keyof F['h
   ...GetHandlerArguments<F['handlers'][EventName]>
 ];
 
-export type CurrentAction<F extends FsmBuilder> =
+export type ActionRef<F extends FsmBuilder> =
   | ''
   | `${keyof F['states'] extends string | number ? keyof F['states'] : never}.${keyof F['handlers'] extends
       | string
@@ -91,7 +93,8 @@ export type MachinaThis<F extends FsmBuilder> = MachinaThisInitializeFn<F> & {
   readonly targetReplayState: keyof F['states'];
   readonly state: keyof F['states'];
   readonly priorState: '' | keyof F['states'];
-  readonly currentAction: CurrentAction<F>;
+  readonly priorAction: ActionRef<F>;
+  readonly currentAction: ActionRef<F>;
   readonly currentActionArgs: undefined | CurrentActionArgs<F>;
   readonly inExitHandler: boolean;
 };

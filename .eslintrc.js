@@ -29,6 +29,7 @@ module.exports = {
 
   // add your custom rules here
   rules: {
+    '@typescript-eslint/unbound-method': 'off',
     '@typescript-eslint/no-unused-vars': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
 
