@@ -47,7 +47,7 @@ export type FsmBuilder<
         ...args: ConstructorArguments
       ) => any;
   readonly namespace?: string;
-  readonly addDefaultHandler: <EventName extends Exclude<SpecialHandlerNames | keyof Handlers, keyof DefaultHandlers>>(
+  readonly addDefaultHandler: <EventName extends SpecialHandlerNames | keyof Handlers>(
     eventName: EventName,
     fn: HandlerFn<
       FsmBuilder<
