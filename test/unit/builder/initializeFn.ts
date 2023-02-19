@@ -17,9 +17,8 @@ describe('initializeFn', () => {
       handlerD: fsm.handler<[number]>(),
     },
     events: {
-      event1: fsm.event(),
-      event2: fsm.event(),
-      event3: fsm.event(),
+      event0: fsm.event(),
+      event1: fsm.event<[string]>(),
     },
     initialState: 'stateZero',
   });
@@ -303,9 +302,113 @@ describe('initializeFn', () => {
         });
       });
 
-      describe('emit', () => {});
+      describe('emit', () => {
+        test('tsc must fail on non-defined event (no parameters)', () => {
+          builder.addInitializeFn(function () {
+            //@ts-expect-error
+            this.emit('does-not-exist');
+            //@ts-expect-error
+            this.emit('stateZero');
+            //@ts-expect-error
+            this.emit('handlerA');
+          });
+        });
+        test('tsc must fail on non-defined event (with parameters)', () => {
+          builder.addInitializeFn(function () {
+            //@ts-expect-error
+            this.emit('does-not-exist', 123);
+            //@ts-expect-error
+            this.emit('does-not-exist', true);
+            //@ts-expect-error
+            this.emit('does-not-exist', false);
+            //@ts-expect-error
+            this.emit('does-not-exist', undefined);
+            //@ts-expect-error
+            this.emit('does-not-exist', null);
+            //@ts-expect-error
+            this.emit('does-not-exist', 'test');
+            //@ts-expect-error
+            this.emit('does-not-exist', { one: 'two' });
+          });
+        });
 
-      describe('on', () => {});
+        test('tsc must fail with wrong parameters for event0', () => {
+          builder.addInitializeFn(function () {
+            //@ts-expect-error
+            this.emit('event0', 123);
+            //@ts-expect-error
+            this.emit('event0', true);
+            //@ts-expect-error
+            this.emit('event0', false);
+            //@ts-expect-error
+            this.emit('event0', undefined);
+            //@ts-expect-error
+            this.emit('event0', null);
+            //@ts-expect-error
+            this.emit('event0', 'test');
+            //@ts-expect-error
+            this.emit('event0', { one: 'two' });
+          });
+        });
+        test('tsc must fail with wrong parameters for event1', () => {
+          builder.addInitializeFn(function () {
+            //@ts-expect-error
+            this.emit('event1', 123);
+            //@ts-expect-error
+            this.emit('event1', true);
+            //@ts-expect-error
+            this.emit('event1', false);
+            //@ts-expect-error
+            this.emit('event1', undefined);
+            //@ts-expect-error
+            this.emit('event1', null);
+            //@ts-expect-error
+            this.emit('event1');
+            //@ts-expect-error
+            this.emit('event1', 'test', 'test');
+            //@ts-expect-error
+            this.emit('event1', { one: 'two' });
+          });
+        });
+      });
+
+      describe('emit / on (custom events)', () => {
+        test('emit event0', () => {
+          const mockFnListenerSpecific = jest.fn();
+          const mockFnListenerGeneric = jest.fn();
+          const b = builder.addInitializeFn(function () {
+            this.on('event0', mockFnListenerSpecific);
+            this.on('*', mockFnListenerGeneric);
+            this.emit('event0');
+          });
+          buildAndInit(b);
+
+          expect(mockFnListenerSpecific).toHaveBeenCalledTimes(1);
+          expect(mockFnListenerSpecific).toHaveBeenCalledWith();
+
+          expect(mockFnListenerGeneric).toHaveBeenCalledWith('event0');
+        });
+
+        test('emit event1', () => {
+          const param = 'asdf';
+
+          const mockFnListenerSpecific = jest.fn();
+          const mockFnListenerGeneric = jest.fn();
+          const b = builder.addInitializeFn(function () {
+            this.on('event1', mockFnListenerSpecific);
+            this.on('*', mockFnListenerGeneric);
+            this.emit('event1', param);
+          });
+          buildAndInit(b);
+
+          expect(mockFnListenerSpecific).toHaveBeenCalledTimes(1);
+          expect(mockFnListenerSpecific).toHaveBeenCalledWith(param);
+
+          expect(mockFnListenerGeneric).toHaveBeenCalledWith('event1', param);
+        });
+      });
+
+      describe('on (internal events)', () => {});
 
       describe('off', () => {});
     });
