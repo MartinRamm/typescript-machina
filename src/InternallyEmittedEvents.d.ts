@@ -50,7 +50,7 @@ export type InternallyEmittedEvents<F extends FsmBuilder> = {
         state: keyof F['states'];
         queuedArgs: {
           type: 'transition';
-          untilState: [keyof F['states']];
+          untilState: undefined | [keyof F['states']];
           args: CurrentActionArgs<F>;
         };
         namespace: string;

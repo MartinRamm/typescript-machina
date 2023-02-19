@@ -15,7 +15,7 @@ type MachinaThisHandlerFn<
     : never;
   readonly inExitHandler: EventName extends '_onExit' ? true : false;
 
-  deferUntilTransition(...stateNames: Array<keyof F['states']>): void;
+  deferUntilTransition(stateName?: keyof F['states']): void;
   //as tested in v4.0.2, deferAndTransition only forwards the second arg to _onEnter (unlike "transition", which
   //forwards all args except the first one). So this fn can only accept states that require no or only one argument.
   deferAndTransition<

@@ -598,6 +598,248 @@ describe('initializeFn', () => {
             buildAndInit(b);
           });
         });
+
+        describe('transition/transitioned', () => {
+          const dataTransitionInit = (namespace: string) => ({
+            action: '',
+            fromState: undefined,
+            toState: 'stateZero',
+            namespace,
+          });
+          const dataTransitionToStateOne = (namespace: string) => ({
+            action: 'stateZero.handlerA',
+            fromState: 'stateZero',
+            toState: 'stateOne',
+            namespace,
+          });
+
+          const mockOnEnterStateZero = jest.fn();
+          const mockOnEnterStateOne = jest.fn();
+
+          const mockWithReturn = () =>
+            jest.fn(function () {
+              return { zero: mockOnEnterStateZero.mock.calls.length, one: mockOnEnterStateOne.mock.calls.length };
+            });
+
+          const buildAndInitWithOnEnterMocks = <
+            F extends typeof builder extends FsmBuilder<infer States> ? FsmBuilder<States> : never
+          >(
+            b: F
+          ) => {
+            const factory = b.build({
+              stateZero: fsm.defineState({ _onEnter: mockOnEnterStateZero }),
+              stateOne: fsm.defineState({ _onEnter: mockOnEnterStateOne }),
+              stateTwo: fsm.defineState({}),
+            });
+            return new factory();
+          };
+
+          test('specific listener', () => {
+            const mockFnBefore = mockWithReturn();
+            const mockFnAfter = mockWithReturn();
+
+            const b = builder.addDefaultHandler('handlerA', 'stateOne').addInitializeFn(function () {
+              this.on('transition', mockFnBefore);
+              this.on('transitioned', mockFnAfter);
+            });
+            const i = buildAndInitWithOnEnterMocks(b);
+            i.handle('handlerA');
+
+            //transition is called BEFORE _onEnter of new state is executed
+            expect(mockFnBefore).toHaveBeenCalledTimes(2);
+            expect(mockFnBefore).toHaveBeenNthCalledWith(1, dataTransitionInit(i.namespace));
+            expect(mockFnBefore).toHaveNthReturnedWith(1, { zero: 0, one: 0 });
+            expect(mockFnBefore).toHaveBeenNthCalledWith(2, dataTransitionToStateOne(i.namespace));
+            expect(mockFnBefore).toHaveNthReturnedWith(2, { zero: 1, one: 0 });
+
+            //transitioned is called AFTER _onEnter of new state is executed
+            expect(mockFnAfter).toHaveBeenCalledTimes(2);
+            expect(mockFnAfter).toHaveBeenNthCalledWith(1, dataTransitionInit(i.namespace));
+            expect(mockFnAfter).toHaveNthReturnedWith(1, { zero: 1, one: 0 });
+            expect(mockFnAfter).toHaveBeenNthCalledWith(2, dataTransitionToStateOne(i.namespace));
+            expect(mockFnAfter).toHaveNthReturnedWith(2, { zero: 1, one: 1 });
+          });
+
+          test('generic listener', () => {
+            const mockFn = jest.fn();
+            const b = builder.addDefaultHandler('handlerA', 'stateOne').addInitializeFn(function () {
+              this.on('*', mockFn);
+            });
+            const i = buildAndInitWithOnEnterMocks(b);
+            i.handle('handlerA');
+
+            expect(mockFn).toHaveBeenCalledWith('transition', dataTransitionInit(i.namespace));
+            expect(mockFn).toHaveBeenCalledWith('transitioned', dataTransitionInit(i.namespace));
+
+            expect(mockFn).toHaveBeenCalledWith('transition', dataTransitionToStateOne(i.namespace));
+            expect(mockFn).toHaveBeenCalledWith('transitioned', dataTransitionToStateOne(i.namespace));
+          });
+        });
+
+        describe('handling/handled', () => {
+          const data = (namespace: string) => ({
+            inputType: 'handlerA',
+            delegated: false,
+            ticket: undefined,
+            namespace,
+          });
+
+          test('specific listener', () => {
+            const mockFnBefore = jest.fn(function () {
+              //@ts-ignore
+              //eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
+              return this.state;
+            });
+            const mockFnAfter = jest.fn(function () {
+              //@ts-ignore
+              //eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
+              return this.state;
+            });
+
+            const b = builder.addDefaultHandler('handlerA', 'stateOne').addInitializeFn(function () {
+              this.on('handling', mockFnBefore);
+              this.on('handled', mockFnAfter);
+            });
+            const i = buildAndInit(b);
+            i.handle('handlerA');
+
+            //handling is called BEFORE the input handler is invoked
+            expect(mockFnBefore).toHaveBeenCalledTimes(1);
+            expect(mockFnBefore).toHaveBeenNthCalledWith(1, data(i.namespace));
+            expect(mockFnBefore).toHaveNthReturnedWith(1, 'stateZero');
+
+            //handled is called AFTER the input handler is invoked
+            expect(mockFnAfter).toHaveBeenCalledTimes(1);
+            expect(mockFnAfter).toHaveBeenNthCalledWith(1, data(i.namespace));
+            expect(mockFnAfter).toHaveNthReturnedWith(1, 'stateOne');
+          });
+
+          test('generic listener', () => {
+            const mockFn = jest.fn();
+            const b = builder.addDefaultHandler('handlerA', 'stateOne').addInitializeFn(function () {
+              this.on('*', mockFn);
+            });
+            const i = buildAndInit(b);
+            i.handle('handlerA');
+
+            expect(mockFn).toHaveBeenCalledWith('handling', data(i.namespace));
+            expect(mockFn).toHaveBeenCalledWith('handled', data(i.namespace));
+          });
+        });
+
+        describe('nohandler', () => {
+          const handler = 'does-not-exist';
+          const data = (namespace: string) => ({
+            args: expect.arrayContaining([]), //untyped
+            inputType: handler,
+            delegated: false,
+            ticket: undefined,
+            namespace,
+          });
+
+          test('specific listener', () => {
+            const mockFn = jest.fn();
+            const b = builder.addInitializeFn(function () {
+              this.on('nohandler', mockFn);
+            });
+            const i = buildAndInit(b);
+            i.handle(handler);
+
+            expect(mockFn).toHaveBeenCalledTimes(1);
+            //@ts-ignore
+            expect(mockFn).toHaveBeenCalledWith(data(i.namespace));
+          });
+
+          test('generic listener', () => {
+            const mockFn = jest.fn();
+            const b = builder.addInitializeFn(function () {
+              this.on('*', mockFn);
+            });
+            const i = buildAndInit(b);
+            //@ts-ignore
+            i.handle(handler);
+
+            expect(mockFn).toHaveBeenCalledWith('nohandler', data(i.namespace));
+          });
+        });
+
+        describe('invalidstate', () => {
+          const state = 'invalid-state';
+          const data = (namespace: string) => ({
+            state: 'stateZero',
+            attemptedState: state,
+            namespace,
+          });
+
+          test('specific listener', () => {
+            const mockFn = jest.fn();
+            const b = builder.addInitializeFn(function () {
+              this.on('invalidstate', mockFn);
+            });
+            const i = buildAndInit(b);
+            //@ts-ignore
+            i.transition(state);
+
+            expect(mockFn).toHaveBeenCalledTimes(1);
+            expect(mockFn).toHaveBeenCalledWith(data(i.namespace));
+          });
+
+          test('generic listener', () => {
+            const mockFn = jest.fn();
+            const b = builder.addInitializeFn(function () {
+              this.on('*', mockFn);
+            });
+            const i = buildAndInit(b);
+            //@ts-ignore
+            i.transition(state);
+
+            expect(mockFn).toHaveBeenCalledWith('invalidstate', data(i.namespace));
+          });
+        });
+
+        describe('deferred', () => {
+          const param = 123;
+          const data = (namespace: string) => ({
+            state: 'stateZero',
+            queuedArgs: {
+              type: 'transition',
+              untilState: ['stateOne'],
+              args: [{ inputType: 'handlerD', delegated: false, ticket: undefined }, param],
+            },
+            namespace,
+          });
+
+          test('specific listener', () => {
+            const mockFn = jest.fn();
+            const b = builder
+              .addDefaultHandler('handlerD', function (input) {
+                this.deferUntilTransition('stateOne');
+              })
+              .addInitializeFn(function () {
+                this.on('deferred', mockFn);
+              });
+            const i = buildAndInit(b);
+            i.handle('handlerD', param);
+
+            expect(mockFn).toHaveBeenCalledTimes(1);
+            expect(mockFn).toHaveBeenCalledWith(data(i.namespace));
+          });
+
+          test('generic listener', () => {
+            const mockFn = jest.fn();
+            const b = builder
+              .addDefaultHandler('handlerD', function (input) {
+                this.deferUntilTransition('stateOne');
+              })
+              .addInitializeFn(function () {
+                this.on('*', mockFn);
+              });
+            const i = buildAndInit(b);
+            i.handle('handlerD', param);
+
+            expect(mockFn).toHaveBeenCalledWith('deferred', data(i.namespace));
+          });
+        });
       });
 
       describe('off', () => {});
