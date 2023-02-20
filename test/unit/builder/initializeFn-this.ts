@@ -1143,6 +1143,75 @@ describe('initializeFn', () => {
           expect(mockFn).toHaveBeenCalledTimes(1);
         });
       });
+
+      describe('user-defined-functions', () => {
+        test('called (no arguments)', () => {
+          const mockFn = jest.fn();
+          const b = builder.addUserDefinedFn('test', mockFn).addInitializeFn(function () {
+            this.test();
+          });
+          const i = buildAndInit(b);
+          expect(mockFn).toHaveBeenCalledTimes(1);
+        });
+
+        test('called (with arguments)', () => {
+          const param = 123;
+          const mockFn = jest.fn();
+          const b = builder.addUserDefinedFn('test', mockFn).addInitializeFn(function () {
+            this.test(param);
+          });
+          const i = buildAndInit(b);
+          expect(mockFn).toHaveBeenCalledTimes(1);
+          expect(mockFn).toHaveBeenCalledWith(param);
+        });
+
+        const builderWithUserFunctions = builder
+          .addUserDefinedFn('test', () => {})
+          .addUserDefinedFn('test1', (p0: number) => {});
+
+        test('tsc accepts correct arguments', () => {
+          const b = builderWithUserFunctions.addInitializeFn(function () {
+            this.test();
+            this.test1(123);
+          });
+          const i = buildAndInit(b);
+        });
+
+        test('tsc must fail with wrong arguments', () => {
+          const b = builderWithUserFunctions.addInitializeFn(function () {
+            //@ts-expect-error
+            this.test('stateZero', 123);
+            //@ts-expect-error
+            this.test('stateZero', true);
+            //@ts-expect-error
+            this.test('stateZero', false);
+            //@ts-expect-error
+            this.test('stateZero', undefined);
+            //@ts-expect-error
+            this.test('stateZero', null);
+            //@ts-expect-error
+            this.test('stateZero', 'test');
+            //@ts-expect-error
+            this.test('stateZero', { one: 'two' });
+
+            //@ts-expect-error
+            this.test1('stateZero', 123, 123);
+            //@ts-expect-error
+            this.test1('stateZero', true);
+            //@ts-expect-error
+            this.test1('stateZero', false);
+            //@ts-expect-error
+            this.test1('stateZero', undefined);
+            //@ts-expect-error
+            this.test1('stateZero', null);
+            //@ts-expect-error
+            this.test1('stateZero', 'test');
+            //@ts-expect-error
+            this.test1('stateZero', { one: 'two' });
+          });
+          const i = buildAndInit(b);
+        });
+      });
     });
   });
 });
