@@ -1,12 +1,13 @@
 {
   "name": "machina-typescript",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Typesafe wrapper around https://github.com/ifandelse/machina.js",
   "main": "src/index.js",
   "scripts": {
     "lint": "eslint .",
     "test": "jest && tsc --project tsconfig-test.json --noEmit",
-    "test-without-compatibility": "jest --testPathIgnorePatterns \".+-compatibility.ts$\" --coverage=false"
+    "test-without-compatibility": "jest --testPathIgnorePatterns \".+-compatibility.ts$\" --coverage=false",
+    "build": "tsc --project tsconfig.json"
   },
   "repository": {
     "type": "git",
