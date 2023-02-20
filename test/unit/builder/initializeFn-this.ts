@@ -89,14 +89,46 @@ describe('initializeFn', () => {
         });
         const i = buildAndInit(b);
       });
-      test('namespace', () => {
-        const b = builder.addInitializeFn(function () {
-          expectTypeOf(this).toHaveProperty('namespace');
-          expect(this).toHaveProperty('namespace');
-          expectTypeOf(this.namespace).toBeString();
-          expect(typeof this.namespace).toEqual('string');
+      describe('namespace', () => {
+        test('unset', () => {
+          const b = builder.addInitializeFn(function () {
+            expectTypeOf(this).toHaveProperty('namespace');
+            expect(this).toHaveProperty('namespace');
+            expectTypeOf(this.namespace).toBeString();
+            expect(typeof this.namespace).toEqual('string');
+          });
+          const i = buildAndInit(b);
         });
-        const i = buildAndInit(b);
+        test('set', () => {
+          const namespace = 'test namespace';
+          const b = fsm
+            .builder({
+              states: {
+                stateZero: fsm.state(),
+                stateOne: fsm.state(),
+                stateTwo: fsm.state<[boolean]>(),
+              },
+              handlers: {
+                handlerA: fsm.handler(),
+                handlerB: fsm.handler(),
+                handlerC: fsm.handler(),
+                handlerD: fsm.handler<[number]>(),
+              },
+              events: {
+                event0: fsm.event(),
+                event1: fsm.event<[string]>(),
+              },
+              initialState: 'stateZero',
+              namespace,
+            })
+            .addInitializeFn(function () {
+              expectTypeOf(this).toHaveProperty('namespace');
+              expect(this).toHaveProperty('namespace');
+              expectTypeOf(this.namespace).toBeString();
+              expect(this.namespace).toEqual(namespace);
+            });
+          const i = buildAndInit(b);
+        });
       });
       test('useSafeEmit', () => {
         const b = builder.addInitializeFn(function () {
