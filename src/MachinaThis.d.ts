@@ -4,6 +4,7 @@ import { HandlerFn } from './handlerFn';
 import { GetHandlerArguments } from './handler';
 import { GetEventArguments } from './event';
 import { InternallyEmittedEvents } from './InternallyEmittedEvents';
+import { GetStateArguments } from './state';
 
 type EventHandlerFn<
   F extends FsmBuilder,

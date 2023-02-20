@@ -25,7 +25,7 @@ describe('initializeFn', () => {
     states: {
       stateZero: fsm.state(),
       stateOne: fsm.state(),
-      stateTwo: fsm.state(),
+      stateTwo: fsm.state<[boolean]>(),
     },
     handlers: {
       handlerA: fsm.handler(),
@@ -43,7 +43,9 @@ describe('initializeFn', () => {
     b.build({
       stateZero: fsm.defineState({}),
       stateOne: fsm.defineState({}),
-      stateTwo: fsm.defineState({}),
+      stateTwo: fsm.defineState({
+        _onEnter: p0 => {},
+      }),
     });
   const buildAndInit = <F extends typeof builder extends FsmBuilder<infer States> ? FsmBuilder<States> : never>(
     b: F
@@ -163,15 +165,67 @@ describe('initializeFn', () => {
           });
         });
 
-        ['stateZero' as const, 'stateOne' as const, 'stateTwo' as const].forEach(state =>
-          test(`works with defined state: ${state}`, () => {
-            const b = builder.addInitializeFn(function () {
-              this.transition(state);
-            });
-            const i = buildAndInit(b);
-            expect(i.state).toEqual(state);
-          })
-        );
+        test('tsc must fail on non-defined parameter', () => {
+          builder.addInitializeFn(function () {
+            //@ts-expect-error
+            this.transition('stateZero', 123);
+            //@ts-expect-error
+            this.transition('stateZero', true);
+            //@ts-expect-error
+            this.transition('stateZero', false);
+            //@ts-expect-error
+            this.transition('stateZero', undefined);
+            //@ts-expect-error
+            this.transition('stateZero', null);
+            //@ts-expect-error
+            this.transition('stateZero', 'test');
+            //@ts-expect-error
+            this.transition('stateZero', { one: 'two' });
+          });
+        });
+
+        test('tsc must fail on missing parameter', () => {
+          builder.addInitializeFn(function () {
+            //@ts-expect-error
+            this.transition('stateTwo', 123);
+            //@ts-expect-error
+            this.transition('stateTwo');
+            //@ts-expect-error
+            this.transition('stateTwo', true, false);
+            //@ts-expect-error
+            this.transition('stateTwo', undefined);
+            //@ts-expect-error
+            this.transition('stateTwo', null);
+            //@ts-expect-error
+            this.transition('stateTwo', 'test');
+            //@ts-expect-error
+            this.transition('stateTwo', { one: 'two' });
+          });
+        });
+
+        test('works with defined state: stateZero', () => {
+          const b = builder.addInitializeFn(function () {
+            this.transition('stateZero');
+          });
+          const i = buildAndInit(b);
+          expect(i.state).toEqual('stateZero');
+        });
+
+        test('works with defined state: stateOne', () => {
+          const b = builder.addInitializeFn(function () {
+            this.transition('stateOne');
+          });
+          const i = buildAndInit(b);
+          expect(i.state).toEqual('stateOne');
+        });
+
+        test('works with defined state: stateTwo', () => {
+          const b = builder.addInitializeFn(function () {
+            this.transition('stateTwo', true);
+          });
+          const i = buildAndInit(b);
+          expect(i.state).toEqual('stateTwo');
+        });
       });
 
       describe('handle', () => {
@@ -743,7 +797,9 @@ describe('initializeFn', () => {
             const factory = b.build({
               stateZero: fsm.defineState({ _onEnter: mockOnEnterStateZero }),
               stateOne: fsm.defineState({ _onEnter: mockOnEnterStateOne }),
-              stateTwo: fsm.defineState({}),
+              stateTwo: fsm.defineState({
+                _onEnter: p0 => {},
+              }),
             });
             return new factory();
           };
