@@ -3,6 +3,11 @@ import { expectTypeOf } from 'expect-type';
 import { fsm } from '../../../src';
 import { FsmBuilder } from '../../../src/builder';
 
+//TODO: this file should become a template which should be used to generate tests for:
+//* default handlers
+//* specific handlers
+//* fsm instance
+
 type States = 'stateZero' | 'stateOne' | 'stateTwo';
 type Handlers = 'handlerA' | 'handlerB' | 'handlerC' | 'handlerD';
 type Actions =

@@ -1,0 +1,47 @@
+TODO TESTS:
+* builder
+    D initialState
+    * addDefaultHandler
+        * this in fn
+        * _onEnter definable if no state requires param
+        * handler = string state if no enter params
+        * _onExit
+        * '*' handler
+        * overridable by state
+        * transition
+        * deferUntilTransition
+            * any state
+            * one state
+            * state A or state B
+        * deferAndTransition
+    D any state (Record<string, ...>)
+    * any handler (Record<string, ...>)
+    * addUserDefinedFn
+        * this in fn
+        D available in initialize fn
+    * addInitializeFn
+        D this in fn
+        D parameters of initialize = constructor arguments
+    * namespace
+    * events
+        * with and without user defined events
+        * any event (Record<string, ...>)
+        * emit
+        * on
+            * custom
+            * internal event
+    * build
+        * parameters of handlers
+        * this in handlers
+* instantiate
+    * parameters
+    * _onEnter definable if no state requires param
+    * handler = string state if no enter params
+    * _onExit
+    * '*' handler
+    * transition
+    * deferUntilTransition
+        * any state
+        * one state
+        * state A or state B
+    * deferAndTransition
