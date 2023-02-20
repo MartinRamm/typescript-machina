@@ -20,7 +20,15 @@ module.exports = {
 
   transform: {
     //eslint-disable-next-line @typescript-eslint/naming-convention
-    '^.+\\.ts$': ['ts-jest', { tsconfig: './tsconfig-test.json' }],
+    '^.+\\.ts$': [
+      'ts-jest',
+      {
+        tsconfig: './tsconfig-test.json',
+        diagnostics: {
+          warnOnly: true, //pnpm run test also runs tsc, therefore this is ok. this was introduced as expectTypeOf of an inferred type didn't work within jest, but worked correctly with tsc.
+        },
+      },
+    ],
   },
   verbose: true,
 };

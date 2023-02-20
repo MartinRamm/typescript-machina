@@ -3,6 +3,23 @@ import { expectTypeOf } from 'expect-type';
 import { fsm } from '../../../src';
 import { FsmBuilder } from '../../../src/builder';
 
+type States = 'stateZero' | 'stateOne' | 'stateTwo';
+type Handlers = 'handlerA' | 'handlerB' | 'handlerC' | 'handlerD';
+type Actions =
+  | ''
+  | 'stateZero.handlerA'
+  | 'stateZero.handlerB'
+  | 'stateZero.handlerC'
+  | 'stateZero.handlerD'
+  | 'stateOne.handlerA'
+  | 'stateOne.handlerB'
+  | 'stateOne.handlerC'
+  | 'stateOne.handlerD'
+  | 'stateTwo.handlerA'
+  | 'stateTwo.handlerB'
+  | 'stateTwo.handlerC'
+  | 'stateTwo.handlerD';
+
 describe('initializeFn', () => {
   const builder = fsm.builder({
     states: {
@@ -373,38 +390,82 @@ describe('initializeFn', () => {
       });
 
       describe('emit / on (custom events)', () => {
-        test('emit event0', () => {
-          const mockFnListenerSpecific = jest.fn();
-          const mockFnListenerGeneric = jest.fn();
-          const b = builder.addInitializeFn(function () {
-            this.on('event0', mockFnListenerSpecific);
-            this.on('*', mockFnListenerGeneric);
-            this.emit('event0');
+        describe('event0', () => {
+          test('emit', () => {
+            const mockFnListenerSpecific = jest.fn();
+            const mockFnListenerGeneric = jest.fn();
+            const b = builder.addInitializeFn(function () {
+              this.on('event0', mockFnListenerSpecific);
+              this.on('*', mockFnListenerGeneric);
+              this.emit('event0');
+            });
+            buildAndInit(b);
+
+            expect(mockFnListenerSpecific).toHaveBeenCalledTimes(1);
+            expect(mockFnListenerSpecific).toHaveBeenCalledWith();
+
+            expect(mockFnListenerGeneric).toHaveBeenCalledWith('event0');
           });
-          buildAndInit(b);
 
-          expect(mockFnListenerSpecific).toHaveBeenCalledTimes(1);
-          expect(mockFnListenerSpecific).toHaveBeenCalledWith();
+          test('tsc accepts correct arguments', () => {
+            builder.addInitializeFn(function () {
+              this.on('event0', () => {});
+            });
+          });
 
-          expect(mockFnListenerGeneric).toHaveBeenCalledWith('event0');
+          test('tsc must fail with wrong parameters', () => {
+            builder.addInitializeFn(function () {
+              //@ts-expect-error
+              this.on('event0', (p0: number) => {});
+              //@ts-expect-error
+              this.on('event0', (p0: boolean) => {});
+              //@ts-expect-error
+              this.on('event0', (p0: object) => {});
+              //@ts-expect-error
+              this.on('event0', (p0: string) => {});
+            });
+          });
         });
 
-        test('emit event1', () => {
-          const param = 'asdf';
+        describe('event1', () => {
+          test('emit', () => {
+            const param = 'asdf';
 
-          const mockFnListenerSpecific = jest.fn();
-          const mockFnListenerGeneric = jest.fn();
-          const b = builder.addInitializeFn(function () {
-            this.on('event1', mockFnListenerSpecific);
-            this.on('*', mockFnListenerGeneric);
-            this.emit('event1', param);
+            const mockFnListenerSpecific = jest.fn();
+            const mockFnListenerGeneric = jest.fn();
+            const b = builder.addInitializeFn(function () {
+              this.on('event1', mockFnListenerSpecific);
+              this.on('*', mockFnListenerGeneric);
+              this.emit('event1', param);
+            });
+            buildAndInit(b);
+
+            expect(mockFnListenerSpecific).toHaveBeenCalledTimes(1);
+            expect(mockFnListenerSpecific).toHaveBeenCalledWith(param);
+
+            expect(mockFnListenerGeneric).toHaveBeenCalledWith('event1', param);
           });
-          buildAndInit(b);
 
-          expect(mockFnListenerSpecific).toHaveBeenCalledTimes(1);
-          expect(mockFnListenerSpecific).toHaveBeenCalledWith(param);
+          test('tsc accepts correct arguments', () => {
+            builder.addInitializeFn(function () {
+              this.on('event1', num => {
+                expectTypeOf(num).toBeString();
+              });
+            });
+          });
 
-          expect(mockFnListenerGeneric).toHaveBeenCalledWith('event1', param);
+          test('tsc must fail with wrong parameters', () => {
+            builder.addInitializeFn(function () {
+              //@ts-expect-error
+              this.on('event1', (p0: number) => {});
+              //@ts-expect-error
+              this.on('event1', (p0: boolean) => {});
+              //@ts-expect-error
+              this.on('event1', (p0: object) => {});
+              //@ts-expect-error
+              this.on('event1', (p0: string, p1: string) => {});
+            });
+          });
         });
 
         describe('this context in event handler fn', () => {
@@ -485,6 +546,41 @@ describe('initializeFn', () => {
       });
 
       describe('on (internal events)', () => {
+        test('tsc arguments for generic listener', () => {
+          builder.addInitializeFn(function () {
+            this.on('*', (eventName, ...params) => {
+              expectTypeOf(eventName).toEqualTypeOf(
+                undefined as unknown as
+                  | 'event0'
+                  | 'event1'
+                  | 'transition'
+                  | 'transitioned'
+                  | 'handling'
+                  | 'handled'
+                  | 'nohandler'
+                  | 'invalidstate'
+                  | 'deferred'
+              );
+
+              //event0
+              expectTypeOf<[]>().toMatchTypeOf(params);
+              //event1
+              expectTypeOf<[string]>().toMatchTypeOf(params);
+              //handling (as an example of an internal event)
+              expectTypeOf<
+                [
+                  {
+                    inputType: States;
+                    delegated: boolean;
+                    ticket: unknown;
+                    namespace: string;
+                  }
+                ]
+              >().toMatchTypeOf(params);
+            });
+          });
+        });
+
         describe('this context in event handler fn', () => {
           test('properties', () => {
             const b = builder.addInitializeFn(function () {
@@ -535,8 +631,6 @@ describe('initializeFn', () => {
                 expectTypeOf(this).toHaveProperty('inExitHandler');
 
                 //@ts-ignore
-                console.log('priorAction', this['priorAction']);
-                console.log(Object.keys(this));
                 expect(Object.keys(this).length).toEqual(
                   [
                     'states',
@@ -600,6 +694,26 @@ describe('initializeFn', () => {
         });
 
         describe('transition/transitioned', () => {
+          test('tsc correctly inferres arguments', () => {
+            (['transition', 'transitioned'] as const).forEach(event =>
+              builder.addInitializeFn(function () {
+                this.on(event, param => {
+                  expectTypeOf(param).toHaveProperty('fromState');
+                  expectTypeOf<States | undefined>().toEqualTypeOf(param.fromState);
+
+                  expectTypeOf(param).toHaveProperty('toState');
+                  expectTypeOf<States>().toEqualTypeOf(param.toState);
+
+                  expectTypeOf(param).toHaveProperty('action');
+                  expectTypeOf<Actions>().toEqualTypeOf(param.action);
+
+                  expectTypeOf(param).toHaveProperty('namespace');
+                  expectTypeOf(param.namespace).toBeString();
+                });
+              })
+            );
+          });
+
           const dataTransitionInit = (namespace: string) => ({
             action: '',
             fromState: undefined,
@@ -677,6 +791,26 @@ describe('initializeFn', () => {
         });
 
         describe('handling/handled', () => {
+          test('tsc correctly inferres arguments', () => {
+            (['handling', 'handled'] as const).forEach(event =>
+              builder.addInitializeFn(function () {
+                this.on(event, param => {
+                  expectTypeOf(param).toHaveProperty('inputType');
+                  expectTypeOf<Handlers>().toEqualTypeOf(param.inputType);
+
+                  expectTypeOf(param).toHaveProperty('delegated');
+                  expectTypeOf<boolean>().toEqualTypeOf(param.delegated);
+
+                  expectTypeOf(param).toHaveProperty('ticket');
+                  expectTypeOf<unknown>().toEqualTypeOf(param.ticket);
+
+                  expectTypeOf(param).toHaveProperty('namespace');
+                  expectTypeOf(param.namespace).toBeString();
+                });
+              })
+            );
+          });
+
           const data = (namespace: string) => ({
             inputType: 'handlerA',
             delegated: false,
@@ -728,6 +862,24 @@ describe('initializeFn', () => {
         });
 
         describe('nohandler', () => {
+          test('tsc correctly inferres arguments', () => {
+            builder.addInitializeFn(function () {
+              this.on('nohandler', param => {
+                expectTypeOf(param).toHaveProperty('inputType');
+                expectTypeOf<string>().toEqualTypeOf(param.inputType);
+
+                expectTypeOf(param).toHaveProperty('delegated');
+                expectTypeOf<boolean>().toEqualTypeOf(param.delegated);
+
+                expectTypeOf(param).toHaveProperty('ticket');
+                expectTypeOf<unknown>().toEqualTypeOf(param.ticket);
+
+                expectTypeOf(param).toHaveProperty('namespace');
+                expectTypeOf(param.namespace).toBeString();
+              });
+            });
+          });
+
           const handler = 'does-not-exist';
           const data = (namespace: string) => ({
             args: expect.arrayContaining([]), //untyped
@@ -764,6 +916,21 @@ describe('initializeFn', () => {
         });
 
         describe('invalidstate', () => {
+          test('tsc correctly inferres arguments', () => {
+            builder.addInitializeFn(function () {
+              this.on('invalidstate', param => {
+                expectTypeOf(param).toHaveProperty('state');
+                expectTypeOf<States>().toEqualTypeOf(param.state);
+
+                expectTypeOf(param).toHaveProperty('attemptedState');
+                expectTypeOf(param.attemptedState).toBeString();
+
+                expectTypeOf(param).toHaveProperty('namespace');
+                expectTypeOf(param.namespace).toBeString();
+              });
+            });
+          });
+
           const state = 'invalid-state';
           const data = (namespace: string) => ({
             state: 'stateZero',
@@ -798,6 +965,34 @@ describe('initializeFn', () => {
         });
 
         describe('deferred', () => {
+          test('tsc correctly inferres arguments', () => {
+            builder.addInitializeFn(function () {
+              this.on('deferred', param => {
+                expectTypeOf(param).toHaveProperty('state');
+                expectTypeOf<States>().toEqualTypeOf(param.state);
+
+                expectTypeOf(param).toHaveProperty('queuedArgs');
+
+                expectTypeOf(param.queuedArgs).toHaveProperty('type');
+                expectTypeOf<'transition'>().toEqualTypeOf(param.queuedArgs.type);
+
+                expectTypeOf(param.queuedArgs).toHaveProperty('untilState');
+                expectTypeOf<undefined | [States]>().toEqualTypeOf(param.queuedArgs.untilState);
+
+                expectTypeOf(param.queuedArgs).toHaveProperty('args');
+                expectTypeOf(param.queuedArgs.args[0]).toHaveProperty('inputType');
+                expectTypeOf<Handlers>().toEqualTypeOf(param.queuedArgs.args[0].inputType);
+                expectTypeOf(param.queuedArgs.args[0]).toHaveProperty('delegated');
+                expectTypeOf<boolean>().toEqualTypeOf(param.queuedArgs.args[0].delegated);
+                expectTypeOf(param.queuedArgs.args[0]).toHaveProperty('ticket');
+                expectTypeOf<any>().toEqualTypeOf(param.queuedArgs.args[0].ticket);
+
+                expectTypeOf(param).toHaveProperty('namespace');
+                expectTypeOf(param.namespace).toBeString();
+              });
+            });
+          });
+
           const param = 123;
           const data = (namespace: string) => ({
             state: 'stateZero',

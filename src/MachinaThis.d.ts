@@ -12,7 +12,7 @@ type EventHandlerFn<
   ? (
       //NOTE: internal events never have the "MachinaThisInitializeFn" context, even when triggerd from the initalize fn
       this: MachinaThis<F>,
-      ...args: GetHandlerArguments<InternallyEmittedEvents<F>[EventName]>
+      ...args: GetEventArguments<InternallyEmittedEvents<F>[EventName]>
     ) => any
   : EventName extends keyof F['events']
   ? //NOTE: custom events do have the "MachinaThisInitializeFn" context,when triggerd from the initalize fn!!
