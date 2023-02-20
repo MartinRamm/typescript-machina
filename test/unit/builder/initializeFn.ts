@@ -1037,7 +1037,37 @@ describe('initializeFn', () => {
         });
       });
 
-      describe('off', () => {});
+      describe('off', () => {
+        test('internal event', () => {
+          const mockFn = jest.fn();
+          const b = builder.addInitializeFn(function () {
+            this.on('invalidstate', mockFn);
+            // @ts-ignore
+            this.transition('does-not-exist');
+
+            this.off('invalidstate', mockFn);
+            // @ts-ignore
+            this.transition('does-not-exist');
+          });
+          buildAndInit(b);
+
+          expect(mockFn).toHaveBeenCalledTimes(1);
+        });
+
+        test('custom event', () => {
+          const mockFn = jest.fn();
+          const b = builder.addInitializeFn(function () {
+            this.on('event0', mockFn);
+            this.emit('event0');
+
+            this.off('event0', mockFn);
+            this.emit('event0');
+          });
+          buildAndInit(b);
+
+          expect(mockFn).toHaveBeenCalledTimes(1);
+        });
+      });
     });
   });
 });
