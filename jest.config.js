@@ -2,7 +2,8 @@
 module.exports = {
   clearMocks: true,
   testEnvironment: 'node',
-  coverageReporters: [],
+  coverageReporters: ['html'],
+  coverageDirectory: '.coverage',
   collectCoverage: true,
   coverageProvider: 'v8',
   coverageThreshold: {
