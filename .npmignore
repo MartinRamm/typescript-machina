@@ -1,0 +1,14 @@
+node_modules/
+.idea/
+.coverage/
+
+test/
+.editorconfig
+.eslintrc.js
+**/.eslintrc.js
+.prettierrc.json
+jest.config.js
+pnpm-lock.yaml
+tsconfig.json
+tsconfig-test.json
+*.txt
