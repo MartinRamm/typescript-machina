@@ -34,7 +34,7 @@ export type MachinaThisInitializeFn<F extends FsmBuilder> = {
     : never;
   readonly states: {
     [state in keyof F['states']]: {
-      [event in keyof F['defaultHandlers']]: HandlerFn<F, event>;
+      [event in keyof F['defaultHandlers']]: HandlerFn<F, event, state>;
     } & {
       [event in Exclude<SpecialHandlerNames | keyof F['handlers'], keyof F['defaultHandlers']>]?: HandlerFn<F, event>;
     };

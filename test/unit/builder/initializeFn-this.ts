@@ -44,12 +44,16 @@ describe('initializeFn', () => {
     },
     initialState: 'stateZero',
   });
-  const build = <F extends typeof builder extends FsmBuilder<infer States> ? FsmBuilder<States> : never>(b: F) =>
+  const build = <
+    F extends typeof builder extends FsmBuilder<infer States, infer Handlers> ? FsmBuilder<States, Handlers> : never
+  >(
+    b: F
+  ) =>
     b.build({
       stateZero: fsm.defineState({}),
       stateOne: fsm.defineState({}),
       stateTwo: fsm.defineState({
-        _onEnter: p0 => {},
+        _onEnter: fsm.handlerFn(p0 => {}),
       }),
     });
   const buildAndInit = <F extends typeof builder extends FsmBuilder<infer States> ? FsmBuilder<States> : never>(
@@ -841,7 +845,9 @@ describe('initializeFn', () => {
             });
 
           const buildAndInitWithOnEnterMocks = <
-            F extends typeof builder extends FsmBuilder<infer States> ? FsmBuilder<States> : never
+            F extends typeof builder extends FsmBuilder<infer States, infer Handlers>
+              ? FsmBuilder<States, Handlers>
+              : never
           >(
             b: F
           ) => {
@@ -849,7 +855,7 @@ describe('initializeFn', () => {
               stateZero: fsm.defineState({ _onEnter: mockOnEnterStateZero }),
               stateOne: fsm.defineState({ _onEnter: mockOnEnterStateOne }),
               stateTwo: fsm.defineState({
-                _onEnter: p0 => {},
+                _onEnter: fsm.handlerFn(p0 => {}),
               }),
             });
             return new factory();
@@ -1005,6 +1011,7 @@ describe('initializeFn', () => {
               this.on('nohandler', mockFn);
             });
             const i = buildAndInit(b);
+            // @ts-expect-error
             i.handle(handler);
 
             expect(mockFn).toHaveBeenCalledTimes(1);

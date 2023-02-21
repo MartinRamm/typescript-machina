@@ -47,4 +47,10 @@ export type HandlerFn<
         : never
     ) => any);
 
-export const handlerFn = <Fn extends HandlerFn>(fn: Fn) => fn;
+export const handlerFn = <
+  F extends FsmBuilder,
+  EventName extends SpecialHandlerNames | keyof F['handlers'],
+  StateName extends keyof F['states']
+>(
+  fn: HandlerFn<F, EventName, StateName>
+) => fn;
