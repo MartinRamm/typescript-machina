@@ -24,6 +24,4 @@ describe('any handler by using fsm.anyHandler()', () => {
 
     expect(mockFn).toHaveBeenCalledTimes(1);
   });
-
-  //TODO add more
 });
