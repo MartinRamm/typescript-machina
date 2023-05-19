@@ -5,8 +5,8 @@ import type { MachinaThis, MachinaThisInitializeFn } from './MachinaThis';
 import type { SpecialHandlerNames } from './SpecialHandlerNames';
 import type { DefineState } from './defineState';
 import { Event } from './event';
-import machina from 'machina';
-import { InstantiatableMachina } from './typeRoot/machina/InstantiatableMachina';
+import machina from './machina/machina';
+import { InstantiatableMachina } from './machina/InstantiatableMachina';
 
 type GenericUserFunction<F extends FsmBuilder = any, Args extends any[] = any, ReturnType = any> = (
   this: MachinaThis<F> | MachinaThisInitializeFn<F>,
