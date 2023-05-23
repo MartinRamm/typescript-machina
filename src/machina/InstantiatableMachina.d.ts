@@ -1,5 +1,5 @@
-import type { FsmBuilder as TypescriptFsm } from '../../builder';
-import type { MachinaThis } from '../../MachinaThis';
+import type { FsmBuilder as TypescriptFsm } from '../builder';
+import type { MachinaThis } from '../MachinaThis';
 
 export type InstantiatableMachina<F extends TypescriptFsm> = {
   new (
