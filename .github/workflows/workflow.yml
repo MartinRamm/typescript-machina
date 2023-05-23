@@ -1,9 +1,21 @@
-name: Build and Test
+name: Github Actions
 on:
+  push: { }
   release:
-    types: [created]
+    types: [ created ]
 jobs:
-  publish-npm:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: latest-6
+      - run: pnpm i
+      - run: pnpm lint
+      - run: pnpm test
+  publish:
+    if: {{ github.event_name == 'release' }}
     needs: lint-and-test
     runs-on: ubuntu-latest
     steps:
