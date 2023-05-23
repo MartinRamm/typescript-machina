@@ -5,8 +5,9 @@
   "main": "src/index.js",
   "scripts": {
     "lint": "eslint .",
-    "test": "jest && tsc --project tsconfig-test.json --noEmit",
-    "test-without-compatibility": "jest --testPathIgnorePatterns \".+-compatibility.ts$\" --coverage=false",
+    "_test-tsc": "tsc --project tsconfig-test.json --noEmit",
+    "test": "jest && pnpm run _test-tsc",
+    "test-without-compatibility": "jest --testPathIgnorePatterns \".+-compatibility.ts$\" --coverage=false && pnpm run _test-tsc",
     "build": "tsc --project tsconfig.json"
   },
   "repository": {
