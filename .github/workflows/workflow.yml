@@ -15,7 +15,7 @@ jobs:
       - run: pnpm lint
       - run: pnpm test
   publish:
-    if: {{ github.event_name == 'release' }}
+    if: github.event_name == 'release'
     needs: lint-and-test
     runs-on: ubuntu-latest
     steps:
