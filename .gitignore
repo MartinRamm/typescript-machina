@@ -4,3 +4,4 @@ node_modules/
 
 src/**/*.js
 !src/**/.eslintrc.js
+!src/machina/machina.js
