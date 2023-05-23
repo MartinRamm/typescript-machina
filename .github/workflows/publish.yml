@@ -9,6 +9,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: pnpm/action-setup@v2
+        with:
+          version: latest-6
       - run: pnpm version ${{ github.event.release.tag_name }}
       - run: pnpm i
       - run: pnpm build
