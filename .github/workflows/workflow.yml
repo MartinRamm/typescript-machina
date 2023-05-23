@@ -23,7 +23,7 @@ jobs:
       - uses: pnpm/action-setup@v2
         with:
           version: latest-6
-      - run: pnpm version ${{ github.event.release.tag_name }}
+      - run: pnpm version ${{ github.event.release.tag_name }} --no-git-tag-version
       - run: pnpm i
       - run: pnpm build
       - run: pnpm publish
