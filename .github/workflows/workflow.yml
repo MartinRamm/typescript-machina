@@ -26,6 +26,5 @@ jobs:
       - run: pnpm version ${{ github.event.release.tag_name }} --no-git-tag-version
       - run: pnpm i
       - run: pnpm build
+      - run: pnpm config set '//registry.npmjs.org/:_authToken' "${secrets.npm_token}"
       - run: pnpm publish --no-git-checks
-        env:
-          NPM_TOKEN: ${{secrets.npm_token}}
